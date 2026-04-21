@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>敏捷力：吉伊卡哇的職場生存法則</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ============ Scene 1: Title ============ -->
+<section id="scene-title" class="scene active">
+  <div class="title-bg">
+    <img src="images/title-bg.png" alt="" class="bg-image" onerror="this.style.display='none'">
+    <div class="bg-deco">
+      <span class="deco">✦</span><span class="deco">✧</span>
+      <span class="deco">✦</span><span class="deco">✧</span>
+      <span class="deco">✦</span>
+    </div>
+  </div>
+
+  <div class="title-center">
+    <div class="title-subtitle" id="t-subtitle"></div>
+    <h1 class="title-main" id="t-title"></h1>
+    <div class="title-tagline" id="t-tagline"></div>
+  </div>
+
+  <div class="title-characters">
+    <img class="char-float c1" src="images/characters/chiikawa.png" alt="" onerror="this.src='images/placeholder.svg'">
+    <img class="char-float c2" src="images/characters/hachi.png" alt="" onerror="this.src='images/placeholder.svg'">
+    <img class="char-float c3" src="images/characters/usagi.png" alt="" onerror="this.src='images/placeholder.svg'">
+    <img class="char-float c4" src="images/characters/kobun.png" alt="" onerror="this.src='images/placeholder.svg'">
+    <img class="char-float c5" src="images/characters/kuri.png" alt="" onerror="this.src='images/placeholder.svg'">
+    <img class="char-float c6" src="images/characters/rakko.png" alt="" onerror="this.src='images/placeholder.svg'">
+  </div>
+
+  <button id="enter-btn" class="enter-btn">
+    <span class="enter-btn-text"></span>
+    <span class="enter-btn-arrow">▶</span>
+  </button>
+
+  <div class="hint-bar" id="title-hint"></div>
+</section>
+
+<!-- ============ Scene 2: Map ============ -->
+<section id="scene-map" class="scene">
+  <header class="map-header">
+    <h2 class="map-title" id="map-title"></h2>
+    <div class="map-hint" id="map-hint"></div>
+    <div class="map-progress">
+      <span class="progress-label"><span id="progress-num">0</span> / <span id="progress-total">7</span></span>
+      <div class="stamp-row" id="stamp-row"></div>
+      <button class="reset-btn" id="reset-btn" title="重置進度"></button>
+    </div>
+  </header>
+
+  <div class="map-wrap">
+    <img src="images/map.png" alt="" class="map-bg" onerror="this.style.display='none'">
+    <div class="map-inner" id="map-inner">
+      <!-- 虛線路徑 SVG -->
+      <svg class="map-paths" viewBox="0 0 100 100" preserveAspectRatio="none" id="map-paths"></svg>
+      <!-- 地標會由 JS 插入 -->
+    </div>
+  </div>
+
+  <!-- 全部完成慶祝層 -->
+  <div class="all-clear" id="all-clear" hidden>
+    <div class="all-clear-inner">
+      <div class="fireworks">
+        <span>✦</span><span>✧</span><span>★</span><span>✦</span><span>✧</span>
+      </div>
+      <h2 id="all-clear-title"></h2>
+      <p id="all-clear-text"></p>
+      <button class="btn primary" id="all-clear-close">再看一次</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Scene 3: Slide ============ -->
+<section id="scene-slide" class="scene">
+  <header class="slide-hud">
+    <button class="btn hud-btn" id="slide-prev">◀ <span class="lbl-prev"></span></button>
+    <button class="btn hud-btn" id="slide-map">🗺 <span class="lbl-map"></span></button>
+    <div class="hud-center">
+      <span class="hud-title" id="hud-title"></span>
+      <span class="hud-count"><span id="hud-cur">1</span>/<span id="hud-total">7</span></span>
+      <div class="hud-bar" id="hud-bar"></div>
+    </div>
+    <button class="btn hud-btn" id="slide-next"><span class="lbl-next"></span> ▶</button>
+  </header>
+
+  <div class="slide-body">
+    <!-- 左側：角色立繪 -->
+    <div class="slide-left" id="slide-left">
+      <div class="stage" id="stage-characters"></div>
+      <div class="char-info" id="char-info"></div>
+    </div>
+
+    <!-- 右側：重點 + 對話框 -->
+    <div class="slide-right">
+      <div class="slide-heading">
+        <span class="slide-badge" id="slide-badge"></span>
+        <h2 class="slide-title" id="slide-title"></h2>
+      </div>
+      <ul class="slide-points" id="slide-points"></ul>
+
+      <div class="dialogue-box" id="dialogue-box">
+        <div class="dialogue-speaker" id="dialogue-speaker"></div>
+        <div class="dialogue-text" id="dialogue-text"></div>
+        <div class="dialogue-next" id="dialogue-next">▼</div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="slide-footer">
+    <button class="btn" id="foot-prev">◀ <span class="lbl-prev"></span></button>
+    <button class="btn" id="foot-map">🗺 <span class="lbl-map"></span></button>
+    <button class="btn primary" id="foot-next"><span class="lbl-next"></span> ▶</button>
+  </footer>
+
+  <div class="skip-hint" id="skip-hint"></div>
+</section>
+
+<!-- 載入失敗提示（雙擊開啟會觸發，需改用 http server） -->
+<div id="load-error" class="load-error" hidden>
+  <div class="load-error-box">
+    <h2>🚧 無法載入內容</h2>
+    <p>瀏覽器禁止直接讀取本機 JSON 檔案。請在 <code>web/</code> 資料夾執行下列指令後用 <code>http://localhost:8000</code> 開啟：</p>
+    <pre>cd web && python3 -m http.server 8000</pre>
+    <p>或雙擊 <code>start.command</code>（macOS）自動啟動。</p>
+  </div>
+</div>
+
+<script src="assets/js/typewriter.js"></script>
+<script src="assets/js/scenes.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
