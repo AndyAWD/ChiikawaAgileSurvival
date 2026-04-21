@@ -95,7 +95,7 @@
     },
     {
       "id": 2,
-      "landmark": { "icon": "⚔️", "name": "前線訓練場", "x": 32, "y": 58 },
+      "landmark": { "icon": "⚔️", "name": "前線訓練場", "x": 32, "y": 82 },
       "title": "我們的敏捷小隊（上）",
       "subtitle": "角色篇 上",
       "characters": ["chiikawa", "hachi", "usagi"],
@@ -121,7 +121,7 @@
     },
     {
       "id": 3,
-      "landmark": { "icon": "📚", "name": "智慧塔", "x": 55, "y": 80 },
+      "landmark": { "icon": "📚", "name": "智慧塔", "x": 53, "y": 68 },
       "title": "我們的敏捷小隊（下）",
       "subtitle": "角色篇 下",
       "characters": ["kobun", "kuri", "rakko"],
@@ -147,7 +147,7 @@
     },
     {
       "id": 4,
-      "landmark": { "icon": "🐉", "name": "討伐戰場", "x": 75, "y": 62 },
+      "landmark": { "icon": "🐉", "name": "討伐戰場", "x": 85, "y": 72 },
       "title": "實戰演練！這四天的敏捷力展現",
       "subtitle": "團隊協作",
       "characters": ["chiikawa", "hachi", "usagi", "kobun", "kuri", "rakko"],
@@ -177,7 +177,7 @@
     },
     {
       "id": 5,
-      "landmark": { "icon": "🏛️", "name": "秘技神殿", "x": 50, "y": 32 },
+      "landmark": { "icon": "🏛️", "name": "秘技神殿", "x": 69, "y": 21 },
       "title": "如何在日常工作中深化敏捷力？",
       "subtitle": "行動方針",
       "characters": ["chiikawa", "hachi", "usagi", "kobun", "kuri", "rakko"],
@@ -207,7 +207,7 @@
     },
     {
       "id": 6,
-      "landmark": { "icon": "🍻", "name": "慶祝酒館", "x": 82, "y": 25 },
+      "landmark": { "icon": "🍻", "name": "慶祝酒館", "x": 37, "y": 17 },
       "title": "一起成為最高階的職場討伐者！",
       "subtitle": "結語",
       "characters": ["chiikawa", "hachi", "usagi", "kobun", "kuri", "rakko"],
@@ -232,7 +232,7 @@
     },
     {
       "id": 7,
-      "landmark": { "icon": "📜", "name": "卷軸塔", "x": 20, "y": 28 },
+      "landmark": { "icon": "📜", "name": "卷軸塔", "x": 15, "y": 28 },
       "title": "持續精進！我們的學習資源分享",
       "subtitle": "互動/補充頁",
       "characters": ["kobun"],
