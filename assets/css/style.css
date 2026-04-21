@@ -697,6 +697,7 @@ button {
   border-radius: var(--radius);
   position: relative;
   padding: 20px;
+  overflow: hidden;
 }
 .stage {
   flex: 1;
@@ -710,11 +711,14 @@ button {
 }
 .stage-char {
   position: absolute;
-  left: 50%;
+  left: 0;
+  right: 0;
   bottom: 0;
-  transform: translateX(-50%);
-  height: min(65vh, 440px);
-  max-width: 90%;
+  margin: 0 auto;
+  max-height: min(65vh, 440px);
+  max-width: 100%;
+  width: auto;
+  height: auto;
   object-fit: contain;
   opacity: 0;
   pointer-events: none;
@@ -1004,7 +1008,7 @@ button {
     min-width: 0;
   }
   .stage-char {
-    height: min(30vh, 200px);
+    max-height: min(30vh, 200px);
   }
   .char-dot { width: 28px; height: 28px; }
   .map-header {
@@ -1030,7 +1034,7 @@ button {
   .slide-points li  { padding: 8px 14px 8px 36px; font-size: 14px; line-height: 1.5; }
   .dialogue-box     { padding: 14px 18px 18px; min-height: 70px; }
   .dialogue-text    { line-height: 1.65; }
-  .stage-char       { height: min(52vh, 320px); }
+  .stage-char       { max-height: min(52vh, 320px); }
   .char-dot         { width: 30px; height: 30px; }
   .char-info        { padding: 8px 12px; min-height: 52px; }
   .skip-hint        { bottom: 54px; font-size: 10px; }
@@ -1048,7 +1052,7 @@ button {
   .dialogue-box     { min-height: 56px; padding: 12px 16px 14px; }
   .dialogue-text    { font-size: 14px; line-height: 1.55; }
   .dialogue-speaker { font-size: 11px; transform: translateY(-22px); }
-  .stage-char       { height: min(44vh, 260px); }
+  .stage-char       { max-height: min(44vh, 260px); }
   .char-dot         { width: 26px; height: 26px; }
   .char-info .ci-name   { font-size: 15px; }
   .char-info .ci-dept   { font-size: 10px; }
