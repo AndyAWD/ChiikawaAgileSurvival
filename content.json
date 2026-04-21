@@ -121,7 +121,7 @@
     },
     {
       "id": 3,
-      "landmark": { "icon": "📚", "name": "智慧塔", "x": 55, "y": 40 },
+      "landmark": { "icon": "📚", "name": "智慧塔", "x": 55, "y": 80 },
       "title": "我們的敏捷小隊（下）",
       "subtitle": "角色篇 下",
       "characters": ["kobun", "kuri", "rakko"],
@@ -177,7 +177,7 @@
     },
     {
       "id": 5,
-      "landmark": { "icon": "🏛️", "name": "秘技神殿", "x": 50, "y": 22 },
+      "landmark": { "icon": "🏛️", "name": "秘技神殿", "x": 50, "y": 32 },
       "title": "如何在日常工作中深化敏捷力？",
       "subtitle": "行動方針",
       "characters": ["chiikawa", "hachi", "usagi", "kobun", "kuri", "rakko"],
