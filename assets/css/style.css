@@ -342,7 +342,16 @@ button {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.9;
+  opacity: 0.7;
+}
+.map-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 248, 231, 0.35);
+  pointer-events: none;
+  border-radius: var(--radius);
+  z-index: 1;
 }
 .map-inner {
   position: absolute;
@@ -486,6 +495,22 @@ button {
   transform: translateX(-50%);
   border: 8px solid transparent;
   border-top-color: var(--brown);
+}
+
+/* 靠上方地標：資訊卡翻到下方 */
+.landmark.card-below .landmark-card {
+  bottom: auto;
+  top: calc(100% + 14px);
+  transform: translateX(-50%) translateY(-6px);
+}
+.landmark.card-below:hover .landmark-card {
+  transform: translateX(-50%) translateY(0);
+}
+.landmark.card-below .landmark-card::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: var(--brown);
 }
 .lc-title {
   font-size: 15px;
@@ -678,23 +703,62 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
   width: 100%;
   max-width: 100%;
   position: relative;
+  min-height: 0;
 }
 .stage-char {
-  height: min(55vh, 360px);
-  max-width: 100%;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  height: min(65vh, 440px);
+  max-width: 90%;
   object-fit: contain;
-  animation: float 4s ease-in-out infinite;
-  filter: drop-shadow(0 10px 18px var(--shadow-deep));
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+  filter: drop-shadow(0 14px 22px var(--shadow-deep));
 }
-.stage-char.single { height: min(65vh, 440px); }
-.stage-char.multi  { height: min(42vh, 260px); }
-.stage-char.dimmed { opacity: 0.35; transform: scale(0.9); }
-.stage-char.active { transform: scale(1.08); filter: drop-shadow(0 14px 22px var(--shadow-deep)); }
+.stage-char.focus {
+  opacity: 1;
+  animation: float 4s ease-in-out infinite;
+}
+
+.char-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 8px 0 4px;
+  flex-wrap: wrap;
+}
+.char-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--brown);
+  background: var(--cream);
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.5;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.char-dot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+.char-dot:hover { opacity: 0.85; }
+.char-dot.active {
+  opacity: 1;
+  transform: scale(1.12);
+  box-shadow: 0 2px 0 var(--brown);
+}
+.char-dots.hide { display: none; }
 
 .char-info {
   width: 100%;
@@ -728,7 +792,8 @@ button {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  overflow: hidden;
+  overflow-y: auto;
+  min-height: 0;
 }
 .slide-heading {
   display: flex;
@@ -804,7 +869,7 @@ button {
   box-shadow: 0 6px 0 var(--brown), 0 12px 24px var(--shadow);
   position: relative;
   cursor: pointer;
-  min-height: 120px;
+  min-height: 100px;
   user-select: none;
 }
 .dialogue-speaker {
@@ -870,7 +935,7 @@ button {
 
 .skip-hint {
   position: absolute;
-  bottom: 70px;
+  bottom: 62px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 11px;
@@ -938,9 +1003,10 @@ button {
     width: 100%;
     min-width: 0;
   }
-  .stage-char, .stage-char.single, .stage-char.multi {
+  .stage-char {
     height: min(30vh, 200px);
   }
+  .char-dot { width: 28px; height: 28px; }
   .map-header {
     padding: 12px 16px;
   }
@@ -949,4 +1015,43 @@ button {
     height: 56px;
     font-size: 24px;
   }
+}
+
+/* ============================================================
+   低高度視窗：只在真的矮的螢幕才縮 (<= 720px)
+   中等高度 (720~900) 維持 debug_1 原本的大立繪美感
+   ============================================================ */
+@media (max-height: 720px) {
+  .slide-hud        { padding: 8px 16px; }
+  .slide-footer     { padding: 10px 24px; }
+  .slide-body       { padding: 14px 22px; gap: 14px; }
+  .slide-left       { padding: 12px; gap: 10px; }
+  .slide-right      { gap: 12px; }
+  .slide-points li  { padding: 8px 14px 8px 36px; font-size: 14px; line-height: 1.5; }
+  .dialogue-box     { padding: 14px 18px 18px; min-height: 70px; }
+  .dialogue-text    { line-height: 1.65; }
+  .stage-char       { height: min(52vh, 320px); }
+  .char-dot         { width: 30px; height: 30px; }
+  .char-info        { padding: 8px 12px; min-height: 52px; }
+  .skip-hint        { bottom: 54px; font-size: 10px; }
+}
+
+@media (max-height: 620px) {
+  .slide-hud        { padding: 6px 14px; }
+  .slide-footer     { padding: 8px 20px; }
+  .slide-body       { padding: 10px 18px; gap: 10px; }
+  .slide-left       { padding: 10px; gap: 8px; }
+  .slide-right      { gap: 8px; }
+  .slide-title      { font-size: clamp(18px, 2.2vw, 24px); }
+  .slide-points li  { padding: 6px 12px 6px 32px; font-size: 13px; line-height: 1.45; }
+  .slide-points li::before { font-size: 14px; left: 12px; }
+  .dialogue-box     { min-height: 56px; padding: 12px 16px 14px; }
+  .dialogue-text    { font-size: 14px; line-height: 1.55; }
+  .dialogue-speaker { font-size: 11px; transform: translateY(-22px); }
+  .stage-char       { height: min(44vh, 260px); }
+  .char-dot         { width: 26px; height: 26px; }
+  .char-info .ci-name   { font-size: 15px; }
+  .char-info .ci-dept   { font-size: 10px; }
+  .skip-hint        { display: none; }
+  .btn              { font-size: 13px; padding: 6px 14px; }
 }

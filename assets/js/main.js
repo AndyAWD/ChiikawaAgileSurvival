@@ -11,7 +11,8 @@
   const state = {
     currentSlideIdx: 0,
     currentDialogueIdx: 0,
-    visited: new Set()
+    visited: new Set(),
+    focusKey: null
   };
 
   // ============================================================
@@ -114,7 +115,10 @@
     slides.forEach((slide, idx) => {
       const lm = slide.landmark;
       const el = document.createElement('div');
-      el.className = 'landmark' + (state.visited.has(idx) ? ' done' : '');
+      const cardBelow = lm.y < 35; // 靠上方的地標：資訊卡改顯示在下方
+      el.className = 'landmark'
+        + (state.visited.has(idx) ? ' done' : '')
+        + (cardBelow ? ' card-below' : '');
       el.style.left = lm.x + '%';
       el.style.top  = lm.y + '%';
 
@@ -197,6 +201,8 @@
     const slide = content.slides[state.currentSlideIdx];
     if (!slide) return;
 
+    state.focusKey = null;
+
     // HUD
     setText('hud-title', slide.title);
     setText('hud-cur', state.currentSlideIdx + 1);
@@ -239,57 +245,97 @@
     const stage = document.getElementById('stage-characters');
     stage.innerHTML = '';
     const keys = slide.characters || [];
-    const isMulti = keys.length > 1;
     keys.forEach(key => {
       const c = content.characters[key];
       if (!c) return;
       const img = document.createElement('img');
-      img.className = 'stage-char ' + (isMulti ? 'multi' : 'single');
+      img.className = 'stage-char';
       img.src = c.image;
       img.alt = c.name;
       img.dataset.key = key;
       img.onerror = () => { img.src = PLACEHOLDER; };
       stage.appendChild(img);
     });
+    renderCharDots(slide);
     updateCharInfo(slide);
   }
 
-  function updateCharInfo(slide) {
-    const info = document.getElementById('char-info');
-    const d = slide.dialogues[state.currentDialogueIdx] || {};
-    const speakerKey = d.speaker;
-    const c = speakerKey ? content.characters[speakerKey] : null;
-
-    // 立繪 focus / dim
-    document.querySelectorAll('.stage-char').forEach(img => {
-      img.classList.remove('active', 'dimmed');
-      if (!speakerKey) return;
-      if (img.dataset.key === speakerKey) img.classList.add('active');
-      else img.classList.add('dimmed');
+  function renderCharDots(slide) {
+    const left = document.getElementById('slide-left');
+    if (!left) return;
+    let dots = document.getElementById('char-dots');
+    if (!dots) {
+      dots = document.createElement('div');
+      dots.id = 'char-dots';
+      dots.className = 'char-dots';
+      const info = document.getElementById('char-info');
+      left.insertBefore(dots, info);
+    }
+    dots.innerHTML = '';
+    const keys = slide.characters || [];
+    if (keys.length <= 1) {
+      dots.classList.add('hide');
+      return;
+    }
+    dots.classList.remove('hide');
+    keys.forEach(key => {
+      const c = content.characters[key];
+      if (!c) return;
+      const btn = document.createElement('button');
+      btn.className = 'char-dot';
+      btn.type = 'button';
+      btn.dataset.key = key;
+      btn.title = c.name;
+      const img = document.createElement('img');
+      img.src = c.image;
+      img.alt = c.name;
+      img.onerror = () => { img.src = PLACEHOLDER; };
+      btn.appendChild(img);
+      btn.addEventListener('click', () => {
+        state.focusKey = key;
+        applyFocus(slide);
+        renderCharInfoText(key);
+      });
+      dots.appendChild(btn);
     });
+  }
 
+  function applyFocus(slide) {
+    const key = state.focusKey;
+    document.querySelectorAll('.stage-char').forEach(img => {
+      img.classList.toggle('focus', img.dataset.key === key);
+    });
+    document.querySelectorAll('.char-dot').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.key === key);
+    });
+  }
+
+  function renderCharInfoText(key) {
+    const info = document.getElementById('char-info');
+    const c = key ? content.characters[key] : null;
     if (c) {
       info.innerHTML = `
         <div class="ci-name">${c.name}</div>
         <div class="ci-member">${c.member}</div>
         <div class="ci-dept">${c.department} · ${c.trait}</div>
       `;
-    } else if ((slide.characters || []).length > 1) {
-      const names = slide.characters.map(k => content.characters[k]?.name).filter(Boolean).join(' / ');
-      info.innerHTML = `<div class="ci-name">${names}</div><div class="ci-dept">全員集合</div>`;
     } else {
-      const k = (slide.characters || [])[0];
-      const solo = k ? content.characters[k] : null;
-      if (solo) {
-        info.innerHTML = `
-          <div class="ci-name">${solo.name}</div>
-          <div class="ci-member">${solo.member}</div>
-          <div class="ci-dept">${solo.department}</div>
-        `;
-      } else {
-        info.innerHTML = `<div class="ci-name">旁白</div>`;
-      }
+      info.innerHTML = `<div class="ci-name">旁白</div>`;
     }
+  }
+
+  function updateCharInfo(slide) {
+    const d = slide.dialogues[state.currentDialogueIdx] || {};
+    const speakerKey = d.speaker;
+    const keys = slide.characters || [];
+
+    let finalKey = speakerKey;
+    if (!finalKey) finalKey = state.focusKey;
+    if (!finalKey) finalKey = keys[0] || null;
+
+    state.focusKey = finalKey;
+    applyFocus(slide);
+    renderCharInfoText(finalKey);
   }
 
   function playDialogue() {
@@ -302,7 +348,10 @@
     speakerEl.textContent = d.speaker ? (content.characters[d.speaker]?.name || '') : '';
     updateCharInfo(slide);
     typewriter.play(d.text, () => {
-      box.classList.add('ready');
+      // 只有當後面還有對話時，才顯示跳動的下箭頭
+      if (state.currentDialogueIdx < slide.dialogues.length - 1) {
+        box.classList.add('ready');
+      }
     });
   }
 
