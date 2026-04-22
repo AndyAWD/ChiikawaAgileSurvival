@@ -15,7 +15,7 @@
     "mapHint": "點擊地標開始冒險",
     "allClearTitle": "全關卡討伐完畢！",
     "allClearText": "你已成為最高階的職場討伐者！",
-    "skipHint": "Space / 點擊 推進 · ← → 切換關卡 · Esc 回地圖",
+    "skipHint": "",
     "resetProgress": "重置進度"
   },
   "characters": {
