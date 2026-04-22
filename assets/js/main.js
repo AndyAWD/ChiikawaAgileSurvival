@@ -53,7 +53,19 @@
   // 靜態文字 (一次渲染)
   // ============================================================
   function renderStaticText() {
-    const m = content.meta, ui = content.ui;
+    const m = content.meta, ui = content.ui, mode = content.mode;
+    
+    // 依據 mode 套用不同首頁樣式
+    const titleCharacters = document.querySelector('.title-characters');
+    const enterBtn = document.getElementById('enter-btn');
+    if (mode === "2") {
+      if (titleCharacters) titleCharacters.style.display = "none";
+      if (enterBtn) enterBtn.style.bottom = "calc(8% + 210px)";
+    } else {
+      if (titleCharacters) titleCharacters.style.display = "";
+      if (enterBtn) enterBtn.style.bottom = "";
+    }
+
     setText('t-subtitle', m.subtitle);
     setText('t-title', m.title);
     setText('t-tagline', m.tagline || '');

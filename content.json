@@ -1,8 +1,9 @@
 {
+  "mode": "2",
   "meta": {
-    "title": "敏捷力",
-    "subtitle": "吉伊卡哇的職場生存法則",
-    "tagline": "跨部門的敏捷討伐日常"
+    "title": "",
+    "subtitle": "",
+    "tagline": ""
   },
   "ui": {
     "enterButton": "進入簡報",
