@@ -3,6 +3,20 @@
 
   const STORAGE_KEY = 'chiikawa-agile-progress-v1';
   const PLACEHOLDER = 'images/placeholder.svg';
+  const FALLBACK_KEY = 'kai';
+
+  // 角色名稱不在名單中（含 null）時，透過 try/catch 例外處理 fallback 到「鎧甲人」
+  function resolveCharacter(key) {
+    try {
+      if (!key) throw new Error('speaker is null');
+      const c = content.characters[key];
+      if (!c) throw new Error('character "' + key + '" not found');
+      return c;
+    } catch (err) {
+      console.warn('[character fallback]', err.message, '→ 使用鎧甲人');
+      return content.characters[FALLBACK_KEY] || null;
+    }
+  }
 
   let content = null;
   let scenes = null;
@@ -258,7 +272,7 @@
     stage.innerHTML = '';
     const keys = slide.characters || [];
     keys.forEach(key => {
-      const c = content.characters[key];
+      const c = resolveCharacter(key);
       if (!c) return;
       const img = document.createElement('img');
       img.className = 'stage-char';
@@ -324,7 +338,7 @@
 
   function renderCharInfoText(key) {
     const info = document.getElementById('char-info');
-    const c = key ? content.characters[key] : null;
+    const c = key ? resolveCharacter(key) : null;
     if (c) {
       info.innerHTML = `
         <div class="ci-name">${c.name}</div>
@@ -357,7 +371,8 @@
     const box = document.getElementById('dialogue-box');
     const speakerEl = document.getElementById('dialogue-speaker');
     box.classList.remove('ready');
-    speakerEl.textContent = d.speaker ? (content.characters[d.speaker]?.name || '') : '';
+    const speaker = d.speaker ? resolveCharacter(d.speaker) : null;
+    speakerEl.textContent = speaker ? speaker.name : '';
     updateCharInfo(slide);
     typewriter.play(d.text, () => {
       // 只有當後面還有對話時，才顯示跳動的下箭頭
