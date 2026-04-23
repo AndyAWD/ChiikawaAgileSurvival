@@ -4,6 +4,7 @@
   const STORAGE_KEY = 'chiikawa-agile-progress-v1';
   const PLACEHOLDER = 'images/placeholder.svg';
   const FALLBACK_KEY = 'kai';
+  const IMG_EXT_RE = /\.(png|jpe?g|gif|webp|svg)$/i;
 
   // 角色名稱不在名單中（含 null）時，透過 try/catch 例外處理 fallback 到「鎧甲人」
   function resolveCharacter(key) {
@@ -54,6 +55,7 @@
     bindMapScene();
     bindSlideScene();
     bindKeyboard();
+    bindLightbox();
 
     scenes.show('title');
   }
@@ -243,7 +245,19 @@
     ul.innerHTML = '';
     (slide.points || []).forEach(p => {
       const li = document.createElement('li');
-      li.innerHTML = renderInline(p);
+      const text = String(p).trim();
+      if (IMG_EXT_RE.test(text)) {
+        li.classList.add('point-image');
+        const img = document.createElement('img');
+        img.src = text.includes('/') ? text : `images/points/${text}`;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.onerror = () => { img.src = 'images/placeholder.svg'; };
+        img.addEventListener('click', () => openLightbox(img.src));
+        li.appendChild(img);
+      } else {
+        li.innerHTML = renderInline(text);
+      }
       ul.appendChild(li);
     });
 
@@ -471,6 +485,38 @@
   function renderInline(text) {
     return escapeHtml(text)
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  }
+
+  // ============================================================
+  // 圖片燈箱
+  // ============================================================
+  function bindLightbox() {
+    const box = document.getElementById('image-lightbox');
+    const closeBtn = document.getElementById('lightbox-close');
+    if (!box || !closeBtn) return;
+    closeBtn.addEventListener('click', closeLightbox);
+    box.addEventListener('click', (e) => {
+      if (e.target === box) closeLightbox();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !box.hidden) closeLightbox();
+    });
+  }
+
+  function openLightbox(src) {
+    const box = document.getElementById('image-lightbox');
+    const img = document.getElementById('lightbox-img');
+    if (!box || !img) return;
+    img.src = src;
+    box.hidden = false;
+  }
+
+  function closeLightbox() {
+    const box = document.getElementById('image-lightbox');
+    const img = document.getElementById('lightbox-img');
+    if (!box) return;
+    box.hidden = true;
+    if (img) img.src = '';
   }
 
   function escapeHtml(s) {
