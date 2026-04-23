@@ -19,6 +19,11 @@
     "resetProgress": "重置進度",
     "dialogueEnd": "◆ END ◆"
   },
+  "audio": {
+    "src": "",
+    "loop": true,
+    "volume": 0.2
+  },
   "backgrounds": {
     "welcome": "images/title-bg.png",
     "map": "images/map.png"

@@ -22,6 +22,7 @@
   let content = null;
   let scenes = null;
   let typewriter = null;
+  let bgmAudio = null;
 
   const state = {
     currentSlideIdx: 0,
@@ -51,6 +52,7 @@
 
     loadProgress();
     renderStaticText();
+    initAudio();
     bindTitleScene();
     bindMapScene();
     bindSlideScene();
@@ -73,13 +75,13 @@
     
     // 依據 mode 套用不同首頁樣式
     const titleCharacters = document.querySelector('.title-characters');
-    const enterBtn = document.getElementById('enter-btn');
+    const titleBtns = document.getElementById('title-btns');
     if (mode === "2") {
       if (titleCharacters) titleCharacters.style.display = "none";
-      if (enterBtn) enterBtn.style.bottom = "calc(8% + 210px)";
+      if (titleBtns) titleBtns.style.bottom = "calc(8% + 210px)";
     } else {
       if (titleCharacters) titleCharacters.style.display = "";
-      if (enterBtn) enterBtn.style.bottom = "";
+      if (titleBtns) titleBtns.style.bottom = "";
     }
 
     setText('t-subtitle', m.subtitle);
@@ -485,6 +487,41 @@
         else if (e.key === ' ') { e.preventDefault(); advanceDialogue(); }
       }
     });
+  }
+
+  // ============================================================
+  // 背景音樂
+  // ============================================================
+  function initAudio() {
+    const cfg = content.audio;
+    if (!cfg || !cfg.src) return;
+
+    bgmAudio = new Audio(cfg.src);
+    bgmAudio.loop   = cfg.loop !== false;
+    bgmAudio.volume = typeof cfg.volume === 'number' ? cfg.volume : 0.5;
+
+    // 載入失敗（檔案不存在或路徑錯誤）→ 隱藏所有按鈕
+    bgmAudio.addEventListener('error', () => {
+      document.querySelectorAll('.bgm-btn').forEach(btn => { btn.hidden = true; });
+    });
+
+    // 預設靜音狀態顯示
+    document.querySelectorAll('.bgm-btn').forEach(btn => {
+      btn.hidden = false;
+      btn.classList.add('muted');
+      btn.addEventListener('click', toggleBgm);
+    });
+  }
+
+  function toggleBgm() {
+    if (!bgmAudio) return;
+    if (bgmAudio.paused) {
+      bgmAudio.play().catch(() => {});
+      document.querySelectorAll('.bgm-btn').forEach(btn => btn.classList.remove('muted'));
+    } else {
+      bgmAudio.pause();
+      document.querySelectorAll('.bgm-btn').forEach(btn => btn.classList.add('muted'));
+    }
   }
 
   // ============================================================

@@ -22,6 +22,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
 
 html, body {
   width: 100%;
@@ -170,12 +171,19 @@ button {
   50%      { transform: translateY(-12px) rotate(2deg); }
 }
 
-.enter-btn {
+.title-btns {
   position: absolute;
   bottom: 8%;
   left: 50%;
   transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 3;
+}
+.enter-btn {
   padding: 18px 48px;
+  line-height: 1;
   background: var(--pink-deep);
   color: #fff;
   font-size: clamp(20px, 2.2vw, 28px);
@@ -187,17 +195,16 @@ button {
     0 10px 24px var(--shadow-deep),
     inset 0 -4px 0 rgba(0,0,0,0.1);
   animation: pulse 2s ease-in-out infinite;
-  z-index: 3;
   display: flex;
   align-items: center;
   gap: 14px;
 }
 .enter-btn:hover {
-  transform: translateX(-50%) scale(1.05);
+  transform: scale(1.05);
   animation-play-state: paused;
 }
 .enter-btn:active {
-  transform: translateX(-50%) scale(0.98) translateY(4px);
+  transform: scale(0.98) translateY(4px);
   box-shadow: 0 2px 0 #d97594, 0 4px 12px var(--shadow-deep);
 }
 .enter-btn-arrow {
@@ -1154,4 +1161,88 @@ button {
   .char-info .ci-dept   { font-size: 10px; }
   .skip-hint        { display: none; }
   .btn              { font-size: 13px; padding: 6px 14px; }
+}
+
+/* ============================================================
+   背景音樂按鈕
+   ============================================================ */
+.bgm-btn {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid var(--line);
+  color: var(--brown-soft);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.bgm-btn:hover {
+  background: var(--line);
+  color: #fff;
+}
+.bgm-btn.muted {
+  background: #fff;
+  opacity: 1;
+  border-style: solid;
+}
+.bgm-btn.muted::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 75%;
+  background: var(--brown-soft);
+  border-radius: 1px;
+  top: 12.5%;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  pointer-events: none;
+}
+
+/* 首頁音樂按鈕：與「進入簡報」等高、同樣樣式 */
+.title-btns .bgm-btn {
+  width: auto;
+  height: auto;
+  padding: 18px;
+  line-height: 1;
+  aspect-ratio: 1;
+  font-size: clamp(20px, 2.2vw, 28px);
+  font-weight: 900;
+  background: var(--pink-deep);
+  color: #fff;
+  border: none;
+  box-shadow:
+    0 6px 0 #d97594,
+    0 10px 24px var(--shadow-deep),
+    inset 0 -4px 0 rgba(0,0,0,0.1);
+  animation: pulse 2s ease-in-out infinite;
+}
+.title-btns .bgm-btn:hover {
+  background: var(--pink-deep);
+  color: #fff;
+  transform: scale(1.05);
+  animation-play-state: paused;
+}
+.title-btns .bgm-btn:active {
+  transform: scale(0.98) translateY(4px);
+  box-shadow: 0 2px 0 #d97594, 0 4px 12px var(--shadow-deep);
+}
+.title-btns .bgm-btn.muted {
+  background: #fff;
+  color: var(--pink-deep);
+  border: none;
+  box-shadow:
+    0 6px 0 #d97594,
+    0 10px 24px var(--shadow-deep),
+    inset 0 -4px 0 rgba(0,0,0,0.1);
+}
+.title-btns .bgm-btn.muted::after {
+  background: var(--pink-deep);
+  width: 3px;
+  height: 70%;
+  top: 15%;
 }

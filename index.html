@@ -37,10 +37,13 @@
     <img class="char-float c6" src="images/characters/rakko.png" alt="" onerror="this.src='images/placeholder.svg'">
   </div>
 
-  <button id="enter-btn" class="enter-btn">
-    <span class="enter-btn-text"></span>
-    <span class="enter-btn-arrow">▶</span>
-  </button>
+  <div class="title-btns" id="title-btns">
+    <button class="bgm-btn" hidden title="音樂開關">♪</button>
+    <button id="enter-btn" class="enter-btn">
+      <span class="enter-btn-text"></span>
+      <span class="enter-btn-arrow">▶</span>
+    </button>
+  </div>
 
   <div class="hint-bar" id="title-hint"></div>
 </section>
@@ -54,6 +57,7 @@
       <span class="progress-label"><span id="progress-num">0</span> / <span id="progress-total">7</span></span>
       <div class="stamp-row" id="stamp-row"></div>
       <button class="reset-btn" id="reset-btn" title="重置進度"></button>
+      <button class="bgm-btn" id="bgm-btn" hidden title="音樂開關">♪</button>
     </div>
   </header>
 
