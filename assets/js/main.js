@@ -2,7 +2,7 @@
   'use strict';
 
   const STORAGE_KEY = 'chiikawa-agile-progress-v1';
-  const PLACEHOLDER = 'images/placeholder.svg';
+  const PLACEHOLDER = 'assets/images/placeholder.svg';
   const FALLBACK_KEY = 'kai';
   const IMG_EXT_RE = /\.(png|jpe?g|gif|webp|svg)$/i;
 
@@ -272,10 +272,10 @@
       if (IMG_EXT_RE.test(text)) {
         li.classList.add('point-image');
         const img = document.createElement('img');
-        img.src = text.includes('/') ? text : `images/points/${text}`;
+        img.src = text.includes('/') ? text : `assets/images/points/${text}`;
         img.alt = '';
         img.loading = 'lazy';
-        img.onerror = () => { img.src = 'images/placeholder.svg'; };
+        img.onerror = () => { img.src = 'assets/images/placeholder.svg'; };
         img.addEventListener('click', () => openLightbox(img.src));
         li.appendChild(img);
       } else {

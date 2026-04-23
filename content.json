@@ -27,8 +27,8 @@
     "volume": 0.2
   },
   "backgrounds": {
-    "welcome": "images/title-bg.png",
-    "map": "images/map.png"
+    "welcome": "assets/images/backgrounds/title-bg.png",
+    "map": "assets/images/backgrounds/map.png"
   },
   "characters": {
     "chiikawa": {
@@ -37,7 +37,7 @@
       "department": "風險管理二部 作業風險科",
       "trait": "擁抱未知",
       "color": "#FFD1E0",
-      "image": "images/characters/chiikawa.png"
+      "image": "assets/images/characters/chiikawa.png"
     },
     "hachi": {
       "name": "小八",
@@ -45,7 +45,7 @@
       "department": "數據暨人工智慧發展部 商業智能科",
       "trait": "正向溝通與解題",
       "color": "#FFE8A3",
-      "image": "images/characters/hachi.png"
+      "image": "assets/images/characters/hachi.png"
     },
     "usagi": {
       "name": "烏薩奇",
@@ -53,7 +53,7 @@
       "department": "教育訓練部 教育企劃科",
       "trait": "快速試錯與靈活引導",
       "color": "#FFFFFF",
-      "image": "images/characters/usagi.png"
+      "image": "assets/images/characters/usagi.png"
     },
     "kobun": {
       "name": "古本",
@@ -61,7 +61,7 @@
       "department": "資訊策略發展部 資訊科技發展科",
       "trait": "知識共享與包容支援",
       "color": "#D4B896",
-      "image": "images/characters/kobun.png"
+      "image": "assets/images/characters/kobun.png"
     },
     "kuri": {
       "name": "栗子饅頭",
@@ -69,7 +69,7 @@
       "department": "中台資訊部 元件組裝科",
       "trait": "穩定輸出與可持續節奏",
       "color": "#C89B7B",
-      "image": "images/characters/kuri.png"
+      "image": "assets/images/characters/kuri.png"
     },
     "rakko": {
       "name": "海獺師傅",
@@ -77,7 +77,7 @@
       "department": "法務室法律諮詢暨訴訟科",
       "trait": "守護團隊與專業指引",
       "color": "#A0826D",
-      "image": "images/characters/rakko.png"
+      "image": "assets/images/characters/rakko.png"
     },
     "kai": {
       "name": "鎧甲人",
@@ -85,7 +85,7 @@
       "department": "神秘登場",
       "trait": "守護與勇氣",
       "color": "#8A8A8A",
-      "image": "images/characters/kai.png"
+      "image": "assets/images/characters/kai.png"
     }
   },
   "slides": [

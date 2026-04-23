@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where python:*)",
+      "Bash(where python3:*)",
+      "Bash(py --version)",
+      "Skill(commit)",
+      "Bash(mkdir -p assets/images/backgrounds assets/images/characters assets/images/points)",
+      "Bash(mv images/placeholder.svg assets/images/placeholder.svg)",
+      "Bash(mv images/title-bg.png assets/images/backgrounds/title-bg.png)",
+      "Bash(mv images/title-bg_1.png assets/images/backgrounds/title-bg_1.png)",
+      "Bash(mv images/map.png assets/images/backgrounds/map.png)"
+    ]
+  }
+}
