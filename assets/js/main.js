@@ -95,6 +95,8 @@
 
     setText('all-clear-title', ui.allClearTitle);
     setText('all-clear-text', ui.allClearText);
+    setText('reset-confirm-title', ui.resetConfirmTitle);
+    setText('reset-confirm-text', ui.resetConfirmText);
     setText('hud-total', content.slides.length);
 
     document.querySelector('.enter-btn-text').textContent = ui.enterButton;
@@ -137,12 +139,18 @@
   // ============================================================
   function bindMapScene() {
     document.getElementById('reset-btn').addEventListener('click', () => {
-      if (!confirm('確定要重置所有進度嗎？')) return;
+      document.getElementById('reset-confirm').hidden = false;
+    });
+    document.getElementById('reset-confirm-ok').addEventListener('click', () => {
+      document.getElementById('reset-confirm').hidden = true;
       state.visited.clear();
       saveProgress();
       renderStamps();
       renderMapLandmarks();
       renderHudBar();
+    });
+    document.getElementById('reset-confirm-cancel').addEventListener('click', () => {
+      document.getElementById('reset-confirm').hidden = true;
     });
     document.getElementById('all-clear-close').addEventListener('click', () => {
       document.getElementById('all-clear').hidden = true;

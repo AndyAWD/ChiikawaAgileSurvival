@@ -574,6 +574,11 @@ button {
   color: var(--brown-soft);
   margin-bottom: 20px;
 }
+.reset-confirm-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
 .fireworks {
   position: absolute;
   inset: -20px;

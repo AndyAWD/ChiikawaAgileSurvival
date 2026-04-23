@@ -15,6 +15,8 @@
     "mapHint": "點擊地標開始冒險",
     "allClearTitle": "全關卡討伐完畢！",
     "allClearText": "你已成為最高階的職場討伐者！",
+    "resetConfirmTitle": "重置進度",
+    "resetConfirmText": "確定要重置所有進度嗎？",
     "skipHint": "",
     "resetProgress": "重置進度",
     "dialogueEnd": "◆ END ◆"
