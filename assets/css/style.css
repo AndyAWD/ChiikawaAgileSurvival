@@ -1012,6 +1012,17 @@ button {
   from { transform: translateY(0); }
   to   { transform: translateY(6px); }
 }
+.dialogue-end {
+  position: absolute;
+  bottom: 10px;
+  right: 18px;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--brown-soft);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.dialogue-box.ended .dialogue-end { opacity: 1; }
 
 .slide-footer {
   display: flex;

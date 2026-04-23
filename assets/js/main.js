@@ -100,6 +100,7 @@
     document.querySelectorAll('.lbl-next').forEach(el => el.textContent = ui.next);
     document.querySelectorAll('.lbl-map').forEach(el => el.textContent = ui.backToMap);
     setText('skip-hint', ui.skipHint);
+    setText('dialogue-end', ui.dialogueEnd);
     const resetBtn = document.getElementById('reset-btn');
     if (resetBtn) resetBtn.title = ui.resetProgress || '重置進度';
 
@@ -384,14 +385,15 @@
     if (!d) return;
     const box = document.getElementById('dialogue-box');
     const speakerEl = document.getElementById('dialogue-speaker');
-    box.classList.remove('ready');
+    box.classList.remove('ready', 'ended');
     const speaker = d.speaker ? resolveCharacter(d.speaker) : null;
     speakerEl.textContent = speaker ? speaker.name : '';
     updateCharInfo(slide);
     typewriter.play(d.text, () => {
-      // 只有當後面還有對話時，才顯示跳動的下箭頭
       if (state.currentDialogueIdx < slide.dialogues.length - 1) {
         box.classList.add('ready');
+      } else {
+        box.classList.add('ended');
       }
     });
   }
