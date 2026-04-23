@@ -19,6 +19,10 @@
     "resetProgress": "重置進度",
     "dialogueEnd": "◆ END ◆"
   },
+  "backgrounds": {
+    "welcome": "images/title-bg.png",
+    "map": "images/map.png"
+  },
   "characters": {
     "chiikawa": {
       "name": "吉伊卡哇",

@@ -104,6 +104,18 @@
     const resetBtn = document.getElementById('reset-btn');
     if (resetBtn) resetBtn.title = ui.resetProgress || '重置進度';
 
+    const bg = content.backgrounds || {};
+    const welcomeBg = document.getElementById('welcome-bg');
+    if (welcomeBg && bg.welcome) {
+      welcomeBg.onerror = () => { welcomeBg.style.display = 'none'; };
+      welcomeBg.src = bg.welcome;
+    }
+    const mapBg = document.getElementById('map-bg');
+    if (mapBg && bg.map) {
+      mapBg.onerror = () => { mapBg.style.display = 'none'; };
+      mapBg.src = bg.map;
+    }
+
     renderStamps();
     renderMapLandmarks();
     renderHudBar();
