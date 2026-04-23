@@ -79,15 +79,14 @@
   "slides": [
     {
       "id": 1,
-      "landmark": { "icon": "⚔️", "name": "村莊廣場", "x": 15, "y": 78 },
+      "landmark": { "icon": "⛩\uFE0F", "name": "村莊廣場（上）", "x": 15, "y": 78 },
       "title": "歡迎來認識你的吉伊卡哇夥伴（上）",
       "subtitle": "角色篇 上",
       "characters": ["chiikawa", "hachi", "usagi"],
       "points": [
         "**吉伊卡哇**（Sandra / 風險管理二部 作業風險科）：**擁抱未知**——風管日常面對各種風險，依然勇敢面對新挑戰。",
         "**小八**（Tina / 數據暨人工智慧發展部 商業智能科）：**正向溝通與解題**——遇困難轉念思考，是跨部門潤滑劑。",
-        "**烏薩奇**（Michelle / 教育訓練部 教育企劃科）：**快速試錯與靈活引導**——帶領團隊打破常規，快速行動。",
-        "title-bg_1.png"
+        "**烏薩奇**（Michelle / 教育訓練部 教育企劃科）：**快速試錯與靈活引導**——帶領團隊打破常規，快速行動。"
       ],
       "dialogues": [
         {
@@ -106,7 +105,7 @@
     },
     {
       "id": 2,
-      "landmark": { "icon": "🏠", "name": "村莊廣場", "x": 32, "y": 82 },
+      "landmark": { "icon": "🏠", "name": "村莊廣場（下）", "x": 32, "y": 82 },
       "title": "歡迎來認識你的吉伊卡哇夥伴（下）",
       "subtitle": "角色篇 下",
       "characters": ["kobun", "kuri", "rakko"],
@@ -200,7 +199,7 @@
       "id": 6,
       "landmark": { "icon": "📜", "name": "卷軸塔", "x": 37, "y": 17 },
       "title": "持續精進！我們的學習資源分享",
-      "subtitle": "互動/補充頁",
+      "subtitle": "充電站",
       "characters": ["kai"],
       "points": [
         "Hahow —— 深入淺出：專案管理方法-敏捷式開發Scrum",
