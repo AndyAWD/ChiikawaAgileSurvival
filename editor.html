@@ -518,7 +518,7 @@ body {
     <label class="field-label">音樂檔案路徑</label>
     <div class="upload-row">
       <input type="text" id="f-audio-src" class="field-input" placeholder="assets/audio/bgm.mp3（可留空）">
-      <button class="btn" onclick="document.getElementById('fi-audio').click()">🎵 選擇音樂</button>
+      <button class="btn only-with-server" onclick="document.getElementById('fi-audio').click()">🎵 選擇音樂</button>
       <input type="file" id="fi-audio" accept=".mp3,.wav,.ogg,.m4a" style="display:none">
     </div>
     <div class="audio-info">目前檔案：<span id="audio-current">（未設定）</span></div>
@@ -577,6 +577,7 @@ body {
 // ── 全域狀態 ──────────────────────────────────────────────────
 let content  = null;
 let isDirty  = false;
+let isOnlineReadonly = false;  // true：API 不可用、已 fallback 到靜態 content.json
 
 const IMG_EXT_RE = /\.(png|jpe?g|gif|webp|svg)$/i;
 
@@ -602,15 +603,42 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   showStatus("載入中...", "");
+  // 先嘗試本機 API（由 editor_server.py 提供）
   try {
     const res = await fetch("/api/content");
     if (!res.ok) throw new Error("HTTP " + res.status);
     content = await res.json();
-    renderAll();
-    showStatus("已載入", "ok");
-  } catch (e) {
-    document.getElementById("load-error").hidden = false;
+  } catch (_) {
+    // Fallback：讀取同層靜態 content.json（GitHub Pages 等純靜態環境）
+    try {
+      const res = await fetch("./content.json?t=" + Date.now());
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      content = await res.json();
+      isOnlineReadonly = true;
+    } catch (_e2) {
+      showLoadErrorFor(location.hostname);
+      return;
+    }
   }
+  if (isOnlineReadonly) applyReadonlyMode();
+  renderAll();
+  showStatus(isOnlineReadonly ? "線上模式 ✓" : "已載入", "ok");
+}
+
+function showLoadErrorFor(hostname) {
+  const isLocal = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "";
+  const box = document.querySelector("#load-error .load-error-box");
+  if (box) {
+    box.innerHTML = isLocal
+      ? `<h2>🚧 無法載入內容</h2>
+         <p>瀏覽器禁止直接讀取本機檔案，請改用以下方式開啟編輯器：</p>
+         <p><strong>Windows：</strong>雙擊 <code>start-editor.bat</code></p>
+         <p><strong>macOS：</strong>雙擊 <code>start-editor.command</code></p>`
+      : `<h2>🚧 無法載入內容</h2>
+         <p>線上版已嘗試讀取 <code>./content.json</code>，但仍失敗。</p>
+         <p>請確認 <code>content.json</code> 已 push 到與 <code>editor.html</code> 同一目錄，並等待 GitHub Pages 部署完成。</p>`;
+  }
+  document.getElementById("load-error").hidden = false;
 }
 
 function renderAll() {
@@ -620,7 +648,34 @@ function renderAll() {
   renderBackgrounds();
   renderCharacters();
   renderSlides();
+  hideUploadUIsIfReadonly();
   setTimeout(bindDirtyTracking, 200);
+}
+
+// ── 線上唯讀模式 ─────────────────────────────────────────────
+function applyReadonlyMode() {
+  const saveBtn = document.getElementById("btn-save");
+  if (saveBtn) saveBtn.textContent = "📥 下載 JSON";
+
+  const title = document.querySelector(".header-title");
+  if (title && !document.getElementById("online-badge")) {
+    const badge = document.createElement("span");
+    badge.id = "online-badge";
+    badge.textContent = "線上模式";
+    badge.style.cssText = "margin-left:8px;padding:2px 10px;border-radius:999px;"
+      + "background:var(--sky);color:var(--brown);font-size:11px;font-weight:700;"
+      + "letter-spacing:1px;border:1px solid var(--line);";
+    badge.title = "目前讀取 content.json，無法即時儲存。按『下載 JSON』可匯出編輯結果。";
+    title.insertAdjacentElement("afterend", badge);
+  }
+
+  hideUploadUIsIfReadonly();
+  setTimeout(() => showToast("線上模式：僅能以下載 JSON 的方式保存修改"), 300);
+}
+
+function hideUploadUIsIfReadonly() {
+  if (!isOnlineReadonly) return;
+  document.querySelectorAll(".only-with-server").forEach(el => { el.hidden = true; });
 }
 
 // ── 區塊 1：基本資訊 ──────────────────────────────────────────
@@ -694,7 +749,7 @@ function renderBackgrounds() {
           <div class="upload-row">
             <input type="text" id="f-bg-${key}" class="field-input"
                    value="${escHtml(val)}" placeholder="assets/images/backgrounds/">
-            <button class="btn" onclick="document.getElementById('fi-bg-${key}').click()">🖼 選擇圖片</button>
+            <button class="btn only-with-server" onclick="document.getElementById('fi-bg-${key}').click()">🖼 選擇圖片</button>
             <input type="file" id="fi-bg-${key}" accept="image/*" style="display:none"
                    onchange="handleBgUpload(this,'${key}')">
           </div>
@@ -737,7 +792,7 @@ function buildCharCard(key, char) {
         <img class="char-preview-img"
              src="${escHtml(char.image||'')}" alt="${escHtml(char.name||key)}"
              onerror="this.src='assets/images/placeholder.svg'">
-        <button class="btn char-upload-btn"
+        <button class="btn char-upload-btn only-with-server"
                 onclick="this.closest('.char-card').querySelector('.char-file-input').click()">更換圖片</button>
         <input type="file" class="char-file-input" accept="image/*" style="display:none"
                onchange="handleCharUpload(this)">
@@ -832,6 +887,7 @@ function addNewCharacter() {
 
   const card = buildCharCard(newKey, { name:"", member:"", department:"", trait:"", color:"#FFD1E0", image:"" });
   container.appendChild(card);
+  hideUploadUIsIfReadonly();
   card.scrollIntoView({ behavior: "smooth", block: "center" });
   setTimeout(() => {
     const ki = card.querySelector(".char-key-input");
@@ -881,6 +937,7 @@ function rerenderSlides(slides) {
   slides.forEach((slide, idx) => container.appendChild(buildSlideCard(slide, idx, charKeys)));
   slides.forEach((_, idx) => bindLandmarkPreview(idx));
   updateSidebarSlides();
+  hideUploadUIsIfReadonly();
 }
 
 function buildSlideCard(slide, idx, charKeys) {
@@ -969,7 +1026,7 @@ function buildSlideCard(slide, idx, charKeys) {
         <div id="points-list-${idx}" class="points-list"></div>
         <div class="add-btns">
           <button class="btn" onclick="addPoint(${idx},'text')">＋ 文字重點</button>
-          <button class="btn" onclick="addPoint(${idx},'image')">＋ 圖片重點</button>
+          <button class="btn only-with-server" onclick="addPoint(${idx},'image')">＋ 圖片重點</button>
         </div>
       </div>
 
@@ -1074,7 +1131,7 @@ function buildPointRow(slideIdx, pIdx, value) {
       <img class="point-thumb" src="${escHtml(src)}" alt=""
            onerror="this.src='assets/images/placeholder.svg'">
       <input type="text" class="point-value field-input" value="${escHtml(value)}" readonly>
-      <button class="btn" onclick="this.nextElementSibling.click()">更換</button>
+      <button class="btn only-with-server" onclick="this.nextElementSibling.click()">更換</button>
       <input type="file" accept="image/*" style="display:none"
              onchange="handlePointImgReplace(this,${slideIdx},${pIdx})">
       <div class="point-actions">
@@ -1342,6 +1399,10 @@ function collectAll() {
 
 // ── 儲存 ─────────────────────────────────────────────────────
 async function saveAll() {
+  if (isOnlineReadonly) {
+    downloadContentJson();
+    return;
+  }
   const btn = document.getElementById("btn-save");
   btn.disabled = true;
   btn.textContent = "儲存中...";
@@ -1370,6 +1431,22 @@ async function saveAll() {
     btn.disabled = false;
     btn.textContent = "💾 儲存";
   }
+}
+
+function downloadContentJson() {
+  const payload = collectAll();
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href = url;
+  a.download = "content.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  isDirty = false;
+  showStatus("已下載 content.json", "ok");
+  showToast("已下載 content.json，請替換 repo 中的同名檔案並 push");
 }
 
 // ── 媒體上傳 ─────────────────────────────────────────────────
