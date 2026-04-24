@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>內容編輯器 — 吉伊卡哇敏捷簡報</title>
+<style>
+/* ============================================================
+   CSS 變數（與 style.css 完全一致）
+   ============================================================ */
+:root {
+  --pink:        #FFD1E0;
+  --pink-deep:   #FF9DB7;
+  --cream:       #FFF8E7;
+  --brown:       #6B4423;
+  --brown-soft:  #8B6B47;
+  --mint:        #7FC8A9;
+  --gold:        #FFB84D;
+  --sky:         #CFE8F5;
+  --bg:          #FFF4DC;
+  --line:        #E8A6B8;
+  --shadow:      rgba(107,68,35,0.15);
+  --shadow-deep: rgba(107,68,35,0.3);
+  --font-tc:     "Noto Sans TC","PingFang TC","微軟正黑體",sans-serif;
+  --radius:      18px;
+  --radius-sm:   12px;
+  --header-h:    60px;
+  --sidebar-w:   220px;
+}
+
+/* ── 基礎重設 ── */
+*   { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+body {
+  font-family: var(--font-tc);
+  color: var(--brown);
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+/* ============================================================
+   Header（固定頂部）
+   ============================================================ */
+#top-header {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: var(--header-h); z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  background: rgba(255,248,231,0.97);
+  border-bottom: 3px dashed var(--line);
+  backdrop-filter: blur(4px);
+}
+.header-left  { display: flex; align-items: center; gap: 10px; }
+.header-logo  { font-size: 28px; }
+.header-title { font-size: 17px; font-weight: 900; color: var(--brown); letter-spacing: 2px; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.save-status  {
+  font-size: 13px; color: var(--brown-soft);
+  min-width: 90px; text-align: right;
+}
+.save-status.ok    { color: var(--mint); font-weight: 700; }
+.save-status.error { color: #c00; font-weight: 700; }
+
+/* ============================================================
+   Sidebar（固定左側導覽）
+   ============================================================ */
+#sidebar {
+  position: fixed; top: var(--header-h); left: 0; bottom: 0;
+  width: var(--sidebar-w); z-index: 100;
+  background: var(--cream);
+  border-right: 2px solid var(--line);
+  overflow-y: auto; padding: 12px 0;
+}
+.nav-link, .nav-sub-link {
+  display: block; padding: 8px 18px;
+  color: var(--brown); text-decoration: none;
+  font-size: 13px; font-weight: 700;
+  transition: background 0.12s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.nav-link:hover, .nav-sub-link:hover { background: var(--pink); }
+.nav-sub-link {
+  font-size: 11px; font-weight: 400; padding-left: 30px;
+  color: var(--brown-soft);
+}
+.nav-divider { height: 1px; background: var(--line); margin: 6px 12px; }
+
+/* ============================================================
+   主內容區
+   ============================================================ */
+#main-content {
+  margin-left: var(--sidebar-w);
+  padding: calc(var(--header-h) + 24px) 32px 48px;
+  min-height: 100vh;
+}
+
+/* ============================================================
+   Section 卡片
+   ============================================================ */
+.editor-section {
+  background: white;
+  border-radius: var(--radius);
+  border: 2px solid var(--line);
+  box-shadow: 0 3px 0 var(--shadow), 0 6px 20px var(--shadow);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  scroll-margin-top: calc(var(--header-h) + 16px);
+}
+.section-title {
+  font-size: 18px; font-weight: 900;
+  color: var(--brown); letter-spacing: 3px;
+  margin-bottom: 18px; padding-bottom: 12px;
+  border-bottom: 2px dashed var(--line);
+}
+
+/* ============================================================
+   按鈕（與 index.html .btn 一致）
+   ============================================================ */
+.btn {
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--brown);
+  font-weight: 700; font-size: 13px;
+  font-family: var(--font-tc);
+  border: 2px solid var(--brown);
+  box-shadow: 0 3px 0 var(--brown);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+.btn:hover  { transform: translateY(-1px); box-shadow: 0 4px 0 var(--brown); }
+.btn:active { transform: translateY(2px);  box-shadow: 0 1px 0 var(--brown); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn.primary {
+  background: var(--pink-deep); color: #fff;
+  border-color: #b85a75; box-shadow: 0 3px 0 #b85a75;
+}
+.btn.primary:hover { box-shadow: 0 4px 0 #b85a75; }
+.btn.danger {
+  background: #fff0f0; color: #c00;
+  border-color: #f99; box-shadow: 0 3px 0 #fcc;
+}
+.btn.danger:hover { background: #ffe5e5; }
+.btn-lg { padding: 10px 28px; font-size: 16px; }
+
+/* ============================================================
+   表單元件
+   ============================================================ */
+.field-label {
+  display: block; font-size: 12px; font-weight: 700;
+  color: var(--brown-soft); letter-spacing: 1px;
+  margin-bottom: 5px; margin-top: 14px;
+}
+.field-label:first-child { margin-top: 0; }
+.field-input, .field-textarea, .field-select {
+  width: 100%; padding: 8px 12px;
+  border: 2px solid var(--line); border-radius: var(--radius-sm);
+  background: #fff; color: var(--brown);
+  font-family: var(--font-tc); font-size: 14px;
+  transition: border-color 0.15s;
+}
+.field-input:focus, .field-textarea:focus, .field-select:focus {
+  outline: none; border-color: var(--pink-deep);
+  box-shadow: 0 0 0 3px rgba(255,157,183,0.2);
+}
+.field-textarea { resize: vertical; min-height: 60px; }
+.field-select   { cursor: pointer; }
+
+.upload-row {
+  display: flex; gap: 8px; align-items: center; margin-bottom: 4px;
+}
+.upload-row .field-input { flex: 1; }
+
+.inline-check {
+  display: flex; align-items: center; gap: 8px; padding: 4px 0;
+}
+.inline-check input[type=checkbox] {
+  width: 16px; height: 16px; accent-color: var(--pink-deep); cursor: pointer;
+}
+.inline-check label { font-size: 14px; font-weight: 700; color: var(--brown); cursor: pointer; }
+
+/* ============================================================
+   UI 文字欄位格狀佈局
+   ============================================================ */
+#ui-fields-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 6px 20px;
+}
+#ui-fields-grid .field-label { margin-top: 0; }
+
+/* ============================================================
+   音樂設定
+   ============================================================ */
+.audio-info { font-size: 12px; color: var(--brown-soft); margin-bottom: 4px; }
+.volume-row { display: flex; align-items: center; gap: 12px; }
+.volume-row input[type=range] { flex: 1; accent-color: var(--pink-deep); }
+.volume-val { font-weight: 900; color: var(--brown); min-width: 34px; font-size: 15px; }
+
+/* ============================================================
+   背景圖片
+   ============================================================ */
+.bg-card {
+  border: 2px solid var(--line); border-radius: var(--radius-sm);
+  overflow: hidden; margin-bottom: 14px;
+}
+.bg-card-inner {
+  display: flex; gap: 16px; padding: 14px;
+  background: var(--cream); align-items: flex-start;
+}
+.bg-preview-wrap {
+  width: 160px; height: 90px; flex-shrink: 0;
+  background: var(--sky); border-radius: 8px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.bg-preview-img { width: 100%; height: 100%; object-fit: cover; }
+.bg-controls { flex: 1; }
+.bg-label { font-size: 14px; font-weight: 900; color: var(--brown); margin-bottom: 10px; }
+
+/* ============================================================
+   角色卡片格狀佈局
+   ============================================================ */
+#characters-container {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px;
+}
+.char-card {
+  border: 2px solid var(--line); border-radius: var(--radius-sm);
+  overflow: hidden; background: white;
+  box-shadow: 0 2px 0 var(--shadow);
+}
+.char-card-header {
+  padding: 12px; display: flex; align-items: flex-start;
+  gap: 8px; background: var(--pink);
+  border-bottom: 2px solid var(--line);
+}
+.char-img-wrap { position: relative; width: 76px; flex-shrink: 0; }
+.char-preview-img {
+  width: 76px; height: 76px; object-fit: contain;
+  border-radius: 8px; background: transparent; display: block;
+}
+.char-upload-btn {
+  display: block; width: 100%; margin-top: 5px;
+  font-size: 10px; padding: 3px 6px; text-align: center;
+}
+.char-card-meta { flex: 1; min-width: 0; }
+.char-key-input {
+  font-family: monospace !important;
+  font-size: 13px; padding: 5px 8px !important;
+  letter-spacing: 0.5px;
+}
+.char-delete-btn {
+  flex-shrink: 0; padding: 4px 9px !important;
+  font-size: 12px !important; align-self: flex-start;
+}
+.char-card-body { padding: 12px 14px; }
+.color-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+.color-row input[type=color] {
+  width: 34px; height: 34px;
+  border: 2px solid var(--line); border-radius: 8px;
+  cursor: pointer; padding: 2px; background: white;
+}
+.color-text { flex: 1; }
+.color-preview {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--line); flex-shrink: 0;
+}
+
+/* ============================================================
+   關卡卡片
+   ============================================================ */
+.slides-wrapper { display: flex; flex-direction: column; gap: 14px; }
+.slide-card {
+  border: 2px solid var(--line); border-radius: var(--radius-sm);
+  overflow: hidden; background: white; box-shadow: 0 2px 0 var(--shadow);
+}
+.slide-card-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; background: var(--cream);
+  border-bottom: 2px dashed var(--line);
+}
+.slide-badge {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--pink-deep); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 14px; flex-shrink: 0;
+}
+.slide-title-inline { flex: 1; font-size: 14px; font-weight: 700; }
+.slide-card-actions { display: flex; gap: 5px; }
+.slide-card-actions .btn { padding: 4px 10px; font-size: 12px; }
+.slide-card-body { padding: 14px 16px; }
+
+/* ── 關卡內子區塊 ── */
+.field-section {
+  margin-bottom: 12px; padding: 12px 14px;
+  background: var(--cream); border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+}
+.field-section:last-child { margin-bottom: 0; }
+.field-section-title {
+  font-size: 12px; font-weight: 900; color: var(--brown);
+  letter-spacing: 2px; margin-bottom: 10px; padding-bottom: 6px;
+  border-bottom: 1px dashed var(--line);
+}
+
+/* ============================================================
+   地標編輯器（地圖預覽 + 拖曳）
+   ============================================================ */
+.landmark-editor {
+  display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;
+}
+.landmark-fields { width: 160px; flex-shrink: 0; }
+.xy-row { display: flex; gap: 8px; }
+.xy-item { flex: 1; min-width: 0; }
+.xy-item .field-input { padding: 6px 8px; width: 100%; }
+
+.emoji-row { display: flex; flex-direction: column; gap: 6px; }
+.emoji-input { font-size: 18px !important; width: 60px !important; text-align: center; }
+.emoji-presets { display: flex; flex-wrap: wrap; gap: 4px; }
+.emoji-preset-btn {
+  width: 28px; height: 28px; padding: 0;
+  border-radius: 6px; font-size: 16px;
+  background: var(--cream); border: 1px solid var(--line);
+  cursor: pointer; transition: background 0.1s;
+  display: flex; align-items: center; justify-content: center;
+}
+.emoji-preset-btn:hover { background: var(--pink); }
+
+.landmark-map-preview {
+  position: relative; flex: 1; min-width: 200px; max-width: 50%;
+  border-radius: var(--radius-sm); border: 2px solid var(--line);
+  overflow: hidden; cursor: crosshair;
+  box-shadow: 0 2px 8px var(--shadow);
+  background: var(--sky);
+}
+.lm-map-img {
+  display: block; width: 100%; height: auto;
+  pointer-events: none; user-select: none;
+}
+.lm-pin {
+  position: absolute; transform: translate(-50%, -50%);
+  font-size: 24px; cursor: grab;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
+  user-select: none; touch-action: none; z-index: 2;
+}
+.lm-pin:active { cursor: grabbing; filter: drop-shadow(0 2px 12px rgba(0,0,0,0.8)); }
+.lm-preview-hint {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  text-align: center; font-size: 10px; color: var(--brown);
+  background: rgba(255,248,231,0.88); padding: 3px 0;
+  pointer-events: none;
+}
+
+/* ============================================================
+   角色勾選方塊
+   ============================================================ */
+.chars-container { display: flex; flex-wrap: wrap; gap: 8px; }
+.char-check-label {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px 4px 6px;
+  border: 2px solid var(--line); border-radius: 999px;
+  cursor: pointer; font-size: 12px; font-weight: 700;
+  background: white; transition: background 0.12s, border-color 0.12s;
+  user-select: none;
+}
+.char-check-label.checked { background: var(--pink); border-color: var(--pink-deep); }
+.char-check-label input[type=checkbox] { display: none; }
+.char-check-img {
+  width: 22px; height: 22px; object-fit: contain; border-radius: 4px;
+}
+
+/* ============================================================
+   重點列表
+   ============================================================ */
+.points-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.point-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px; background: white;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+}
+.point-type-badge {
+  flex-shrink: 0; font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 999px; white-space: nowrap;
+}
+.text-badge { background: var(--sky);  color: var(--brown); }
+.img-badge  { background: var(--pink); color: var(--brown); }
+.point-value { flex: 1; }
+.point-thumb {
+  width: 56px; height: 56px; object-fit: cover;
+  border-radius: 6px; flex-shrink: 0;
+}
+.point-actions { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+.point-actions .btn { padding: 3px 8px; font-size: 11px; }
+.add-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ============================================================
+   對話腳本列表
+   ============================================================ */
+.dialogues-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.dialogue-row {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 8px; background: white;
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+}
+.dlg-speaker { flex-shrink: 0; max-width: 110px; }
+.dlg-text { flex: 1; }
+.dlg-actions { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+.dlg-actions .btn { padding: 3px 8px; font-size: 11px; }
+
+/* ============================================================
+   Toast 通知
+   ============================================================ */
+#toast {
+  position: fixed; bottom: 24px; right: 24px;
+  padding: 12px 22px; border-radius: 999px;
+  font-weight: 700; font-size: 14px;
+  z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+#toast.toast-ok    { background: var(--mint); color: white; }
+#toast.toast-error { background: #d44; color: white; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#toast:not([hidden]) { animation: toastIn 0.2s ease; }
+
+/* ============================================================
+   捲動條
+   ============================================================ */
+#sidebar::-webkit-scrollbar { width: 5px; }
+#sidebar::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+
+/* ── 新增關卡按鈕 ── */
+#btn-add-slide {
+  width: 100%; padding: 12px; font-size: 14px;
+  text-align: center; margin-top: 20px;
+}
+
+/* ── 載入失敗提示（與 index.html 一致） ── */
+.load-error {
+  position: fixed; inset: 0;
+  background: rgba(107,68,35,0.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.load-error[hidden] { display: none; }
+.load-error-box {
+  background: var(--cream);
+  border: 3px solid var(--brown);
+  border-radius: var(--radius);
+  padding: 30px 40px; max-width: 560px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.load-error-box h2 { color: var(--pink-deep); margin-bottom: 12px; }
+.load-error-box p  { color: var(--brown); margin: 10px 0; line-height: 1.6; }
+.load-error-box code {
+  background: var(--pink); padding: 2px 8px;
+  border-radius: 4px; color: var(--brown);
+}
+</style>
+</head>
+<body>
+
+<!-- ════════ 固定頂部 Header ════════ -->
+<header id="top-header">
+  <div class="header-left">
+    <span class="header-logo">🐾</span>
+    <span class="header-title">吉伊卡哇簡報 — 內容編輯器</span>
+  </div>
+  <div class="header-right">
+    <span id="save-status" class="save-status"></span>
+    <a href="index.html" target="_blank" class="btn" title="在新分頁預覽簡報">👁 預覽</a>
+    <button id="btn-save" class="btn primary">💾 儲存</button>
+  </div>
+</header>
+
+<!-- ════════ 側邊導覽 ════════ -->
+<nav id="sidebar">
+  <a class="nav-link" href="#section-basic">📋 基本資訊</a>
+  <a class="nav-link" href="#section-ui">🔤 UI 文字</a>
+  <a class="nav-link" href="#section-audio">🎵 音樂設定</a>
+  <a class="nav-link" href="#section-backgrounds">🖼️ 背景圖片</a>
+  <a class="nav-link" href="#section-characters">👥 角色設定</a>
+  <div class="nav-divider"></div>
+  <div id="nav-slides">
+    <a class="nav-link" href="#section-slides">📖 關卡設定</a>
+  </div>
+</nav>
+
+<!-- ════════ 主內容 ════════ -->
+<main id="main-content">
+
+  <!-- ── 區塊 1：基本資訊 ── -->
+  <section id="section-basic" class="editor-section">
+    <h2 class="section-title">📋 基本資訊</h2>
+    <label class="field-label">UI 顯示模式</label>
+    <select id="f-mode" class="field-select" style="width:auto">
+      <option value="1">模式 1（顯示角色立繪）</option>
+      <option value="2">模式 2（隱藏角色立繪）</option>
+    </select>
+    <label class="field-label">標題</label>
+    <input type="text" id="f-meta-title" class="field-input" placeholder="簡報標題">
+    <label class="field-label">副標題</label>
+    <input type="text" id="f-meta-subtitle" class="field-input" placeholder="副標題（可留空）">
+    <label class="field-label">標語</label>
+    <input type="text" id="f-meta-tagline" class="field-input" placeholder="標語文字">
+  </section>
+
+  <!-- ── 區塊 2：UI 文字 ── -->
+  <section id="section-ui" class="editor-section">
+    <h2 class="section-title">🔤 UI 文字</h2>
+    <div id="ui-fields-grid"></div>
+  </section>
+
+  <!-- ── 區塊 3：音樂設定 ── -->
+  <section id="section-audio" class="editor-section">
+    <h2 class="section-title">🎵 音樂設定</h2>
+    <label class="field-label">音樂檔案路徑</label>
+    <div class="upload-row">
+      <input type="text" id="f-audio-src" class="field-input" placeholder="assets/audio/bgm.mp3（可留空）">
+      <button class="btn" onclick="document.getElementById('fi-audio').click()">🎵 選擇音樂</button>
+      <input type="file" id="fi-audio" accept=".mp3,.wav,.ogg,.m4a" style="display:none">
+    </div>
+    <div class="audio-info">目前檔案：<span id="audio-current">（未設定）</span></div>
+    <div class="inline-check" style="margin-top:14px">
+      <input type="checkbox" id="f-audio-loop">
+      <label for="f-audio-loop">循環播放</label>
+    </div>
+    <label class="field-label">音量</label>
+    <div class="volume-row">
+      <input type="range" id="f-audio-volume" min="0" max="1" step="0.05" value="0.2">
+      <span class="volume-val" id="audio-vol-display">0.20</span>
+    </div>
+  </section>
+
+  <!-- ── 區塊 4：背景圖片 ── -->
+  <section id="section-backgrounds" class="editor-section">
+    <h2 class="section-title">🖼️ 背景圖片</h2>
+    <div id="backgrounds-container"></div>
+  </section>
+
+  <!-- ── 區塊 5：角色設定 ── -->
+  <section id="section-characters" class="editor-section">
+    <h2 class="section-title">👥 角色設定</h2>
+    <div id="characters-container"></div>
+    <button class="btn" id="btn-add-char" style="margin-top:12px">＋ 新增角色</button>
+  </section>
+
+  <!-- ── 區塊 6：關卡設定 ── -->
+  <section id="section-slides" class="editor-section">
+    <h2 class="section-title">📖 關卡設定</h2>
+    <div id="slides-container" class="slides-wrapper"></div>
+    <button class="btn" id="btn-add-slide">＋ 新增關卡</button>
+  </section>
+
+</main>
+
+<!-- Toast 通知 -->
+<div id="toast" hidden></div>
+
+<!-- 載入失敗提示（直接雙擊開啟時顯示） -->
+<div id="load-error" class="load-error" hidden>
+  <div class="load-error-box">
+    <h2>🚧 無法載入內容</h2>
+    <p>瀏覽器禁止直接讀取本機檔案，請改用以下方式開啟編輯器：</p>
+    <p><strong>Windows：</strong>雙擊 <code>start-editor.bat</code></p>
+    <p><strong>macOS：</strong>雙擊 <code>start-editor.command</code></p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     JavaScript
+     ════════════════════════════════════════════════════════════ -->
+<script>
+"use strict";
+
+// ── 全域狀態 ──────────────────────────────────────────────────
+let content  = null;
+let isDirty  = false;
+
+const IMG_EXT_RE = /\.(png|jpe?g|gif|webp|svg)$/i;
+
+const UI_FIELD_DEFS = [
+  ["enterButton",       "進入按鈕文字"],
+  ["backToMap",         "返回地圖按鈕"],
+  ["prev",              "上一關按鈕"],
+  ["next",              "下一關按鈕"],
+  ["progressLabel",     "進度標籤"],
+  ["mapTitle",          "地圖標題"],
+  ["mapHint",           "地圖提示文字"],
+  ["allClearTitle",     "全通關標題"],
+  ["allClearText",      "全通關說明"],
+  ["resetConfirmTitle", "重置確認標題"],
+  ["resetConfirmText",  "重置確認說明"],
+  ["skipHint",          "跳過提示"],
+  ["resetProgress",     "重置按鈕文字"],
+  ["dialogueEnd",       "對話結束標記"],
+];
+
+// ── 初始化 ────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", init);
+
+async function init() {
+  showStatus("載入中...", "");
+  try {
+    const res = await fetch("/api/content");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    content = await res.json();
+    renderAll();
+    showStatus("已載入", "ok");
+  } catch (e) {
+    document.getElementById("load-error").hidden = false;
+  }
+}
+
+function renderAll() {
+  renderBasic();
+  renderUI();
+  renderAudio();
+  renderBackgrounds();
+  renderCharacters();
+  renderSlides();
+  setTimeout(bindDirtyTracking, 200);
+}
+
+// ── 區塊 1：基本資訊 ──────────────────────────────────────────
+function renderBasic() {
+  setVal("f-mode",          content.mode            ?? "1");
+  setVal("f-meta-title",    content.meta?.title     ?? "");
+  setVal("f-meta-subtitle", content.meta?.subtitle  ?? "");
+  setVal("f-meta-tagline",  content.meta?.tagline   ?? "");
+}
+
+// ── 區塊 2：UI 文字 ───────────────────────────────────────────
+function renderUI() {
+  const grid = document.getElementById("ui-fields-grid");
+  grid.innerHTML = "";
+  UI_FIELD_DEFS.forEach(([key, label]) => {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <label class="field-label">${escHtml(label)}</label>
+      <input type="text" id="f-ui-${key}" class="field-input"
+             value="${escHtml(content.ui?.[key] ?? "")}">
+    `;
+    grid.appendChild(div);
+  });
+}
+
+// ── 區塊 3：音樂設定 ─────────────────────────────────────────
+function renderAudio() {
+  const cfg = content.audio || {};
+  setVal("f-audio-src", cfg.src || "");
+  document.getElementById("f-audio-loop").checked = cfg.loop !== false;
+  const vol = typeof cfg.volume === "number" ? cfg.volume : 0.2;
+  document.getElementById("f-audio-volume").value = vol;
+  document.getElementById("audio-vol-display").textContent = vol.toFixed(2);
+  document.getElementById("audio-current").textContent =
+    cfg.src ? cfg.src.split("/").pop() : "（未設定）";
+
+  document.getElementById("f-audio-volume").addEventListener("input", function () {
+    document.getElementById("audio-vol-display").textContent =
+      parseFloat(this.value).toFixed(2);
+  });
+
+  document.getElementById("fi-audio").addEventListener("change", function () {
+    handleMediaUpload(this, "assets/audio", "f-audio-src", null, null, path => {
+      document.getElementById("audio-current").textContent = path.split("/").pop();
+    });
+  });
+}
+
+// ── 區塊 4：背景圖片 ─────────────────────────────────────────
+function renderBackgrounds() {
+  const container = document.getElementById("backgrounds-container");
+  const bg = content.backgrounds || {};
+  const entries = [
+    ["welcome", "歡迎頁背景"],
+    ["map",     "地圖背景"],
+  ];
+  container.innerHTML = "";
+  entries.forEach(([key, label]) => {
+    const val = bg[key] || "";
+    const card = document.createElement("div");
+    card.className = "bg-card";
+    card.innerHTML = `
+      <div class="bg-card-inner">
+        <div class="bg-preview-wrap">
+          <img id="prev-bg-${key}" class="bg-preview-img"
+               src="${escHtml(val)}" alt="${escHtml(label)}"
+               onerror="this.style.opacity='0.2'" style="${val?'':'opacity:0.2'}">
+        </div>
+        <div class="bg-controls">
+          <div class="bg-label">${escHtml(label)}</div>
+          <div class="upload-row">
+            <input type="text" id="f-bg-${key}" class="field-input"
+                   value="${escHtml(val)}" placeholder="assets/images/backgrounds/">
+            <button class="btn" onclick="document.getElementById('fi-bg-${key}').click()">🖼 選擇圖片</button>
+            <input type="file" id="fi-bg-${key}" accept="image/*" style="display:none"
+                   onchange="handleBgUpload(this,'${key}')">
+          </div>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function handleBgUpload(fileInput, key) {
+  handleMediaUpload(
+    fileInput, "assets/images/backgrounds",
+    `f-bg-${key}`, `prev-bg-${key}`, null,
+    key === "map" ? path => {
+      const ts = "?t=" + Date.now();
+      document.querySelectorAll(".lm-map-img").forEach(img => { img.src = path + ts; });
+    } : null
+  );
+}
+
+// ── 區塊 5：角色設定 ─────────────────────────────────────────
+function renderCharacters() {
+  const container = document.getElementById("characters-container");
+  container.innerHTML = "";
+  Object.entries(content.characters || {}).forEach(([key, char]) => {
+    container.appendChild(buildCharCard(key, char));
+  });
+}
+
+function buildCharCard(key, char) {
+  const div = document.createElement("div");
+  div.className = "char-card";
+  div.dataset.origKey = key;
+  const color = char.color || "#FFD1E0";
+  div.innerHTML = `
+    <div class="char-card-header"
+         style="background:${escColor(color)}22;border-bottom:2px solid ${escColor(color)}">
+      <div class="char-img-wrap">
+        <img class="char-preview-img"
+             src="${escHtml(char.image||'')}" alt="${escHtml(char.name||key)}"
+             onerror="this.src='assets/images/placeholder.svg'">
+        <button class="btn char-upload-btn"
+                onclick="this.closest('.char-card').querySelector('.char-file-input').click()">更換圖片</button>
+        <input type="file" class="char-file-input" accept="image/*" style="display:none"
+               onchange="handleCharUpload(this)">
+        <input type="hidden" class="char-image-input" value="${escHtml(char.image||'')}">
+      </div>
+      <div class="char-card-meta">
+        <label class="field-label" style="margin-top:0;margin-bottom:4px">角色代碼</label>
+        <input type="text" class="char-key-input field-input"
+               value="${escHtml(key)}" placeholder="英文小寫" spellcheck="false">
+      </div>
+      <button class="btn danger char-delete-btn"
+              title="刪除角色" onclick="removeCharacter(this.closest('.char-card'))">🗑</button>
+    </div>
+    <div class="char-card-body">
+      <label class="field-label">角色名稱</label>
+      <input type="text" class="char-name-input field-input" value="${escHtml(char.name||'')}">
+      <label class="field-label">成員姓名</label>
+      <input type="text" class="char-member-input field-input" value="${escHtml(char.member||'')}">
+      <label class="field-label">部門</label>
+      <input type="text" class="char-dept-input field-input" value="${escHtml(char.department||'')}">
+      <label class="field-label">特質</label>
+      <input type="text" class="char-trait-input field-input" value="${escHtml(char.trait||'')}">
+      <label class="field-label">代表色</label>
+      <div class="color-row">
+        <input type="color" class="char-colorpicker"
+               value="${escColor(char.color)}" oninput="syncColorInCard(this)">
+        <input type="text" class="char-color-input field-input color-text"
+               value="${escHtml(char.color||'#ffffff')}" maxlength="7" placeholder="#RRGGBB"
+               oninput="syncColorPickerInCard(this)">
+        <span class="char-color-preview color-preview"
+              style="background:${escColor(char.color)}"></span>
+      </div>
+    </div>
+  `;
+  return div;
+}
+
+async function handleCharUpload(fileInput) {
+  const card = fileInput.closest(".char-card");
+  const key  = card.querySelector(".char-key-input")?.value.trim() || "char";
+  const ext  = (fileInput.files[0]?.name.split(".").pop() || "png").toLowerCase();
+  const previewImg  = card.querySelector(".char-preview-img");
+  const hiddenInput = card.querySelector(".char-image-input");
+
+  if (previewImg && fileInput.files[0])
+    previewImg.src = URL.createObjectURL(fileInput.files[0]);
+
+  showStatus("上傳中...", "");
+  try {
+    const b64    = await readFileAsBase64(fileInput.files[0]);
+    const result = await fetchUpload(`${key}.${ext}`, "assets/images/characters", b64);
+    if (result.ok) {
+      if (hiddenInput) hiddenInput.value = result.path;
+      if (previewImg)  previewImg.src = result.path + "?t=" + Date.now();
+      showStatus("上傳成功", "ok");
+      showToast("圖片上傳成功");
+    } else {
+      showStatus("上傳失敗", "error");
+      showToast("上傳失敗：" + result.error, "error");
+    }
+  } catch (e) {
+    showStatus("上傳失敗", "error");
+    showToast("上傳失敗：" + e.message, "error");
+  }
+}
+
+function syncColorInCard(picker) {
+  const card   = picker.closest(".char-card");
+  const text   = card.querySelector(".char-color-input");
+  const prev   = card.querySelector(".char-color-preview");
+  const header = card.querySelector(".char-card-header");
+  if (text)   text.value = picker.value;
+  if (prev)   prev.style.background = picker.value;
+  if (header) { header.style.background = picker.value + "22"; header.style.borderBottomColor = picker.value; }
+}
+
+function syncColorPickerInCard(textInput) {
+  const card   = textInput.closest(".char-card");
+  const picker = card.querySelector(".char-colorpicker");
+  const prev   = card.querySelector(".char-color-preview");
+  if (picker && /^#[0-9a-fA-F]{6}$/.test(textInput.value)) {
+    picker.value = textInput.value;
+    if (prev) prev.style.background = textInput.value;
+  }
+}
+
+function addNewCharacter() {
+  const container  = document.getElementById("characters-container");
+  const usedKeys   = Array.from(container.querySelectorAll(".char-key-input")).map(i => i.value.trim());
+  let i = 1, newKey;
+  do { newKey = `char${i++}`; } while (usedKeys.includes(newKey));
+
+  const card = buildCharCard(newKey, { name:"", member:"", department:"", trait:"", color:"#FFD1E0", image:"" });
+  container.appendChild(card);
+  card.scrollIntoView({ behavior: "smooth", block: "center" });
+  setTimeout(() => {
+    const ki = card.querySelector(".char-key-input");
+    if (ki) { ki.focus(); ki.select(); }
+  }, 200);
+}
+
+function removeCharacter(card) {
+  const key = card.querySelector(".char-key-input")?.value || "此角色";
+  if (!confirm(`確定要刪除角色「${key}」？\n\n注意：關卡設定中已勾選此角色的項目不會自動清除，儲存後請手動更新。`)) return;
+  card.remove();
+}
+
+function collectCharacters() {
+  const result = {};
+  document.querySelectorAll(".char-card").forEach(card => {
+    const key = card.querySelector(".char-key-input")?.value.trim();
+    if (!key) return;
+    result[key] = {
+      name:       card.querySelector(".char-name-input")?.value   || "",
+      member:     card.querySelector(".char-member-input")?.value  || "",
+      department: card.querySelector(".char-dept-input")?.value    || "",
+      trait:      card.querySelector(".char-trait-input")?.value   || "",
+      color:      card.querySelector(".char-color-input")?.value   || "#ffffff",
+      image:      card.querySelector(".char-image-input")?.value   || "",
+    };
+  });
+  return result;
+}
+
+// ── 區塊 6：關卡設定 ─────────────────────────────────────────
+function renderSlides() {
+  const container = document.getElementById("slides-container");
+  container.innerHTML = "";
+  const charKeys = Object.keys(content.characters || {});
+  (content.slides || []).forEach((slide, idx) => {
+    container.appendChild(buildSlideCard(slide, idx, charKeys));
+  });
+  (content.slides || []).forEach((_, idx) => bindLandmarkPreview(idx));
+  updateSidebarSlides();
+}
+
+function rerenderSlides(slides) {
+  const container = document.getElementById("slides-container");
+  container.innerHTML = "";
+  const charKeys = Object.keys(content.characters || {});
+  slides.forEach((slide, idx) => container.appendChild(buildSlideCard(slide, idx, charKeys)));
+  slides.forEach((_, idx) => bindLandmarkPreview(idx));
+  updateSidebarSlides();
+}
+
+function buildSlideCard(slide, idx, charKeys) {
+  const lm = slide.landmark || {};
+  const div = document.createElement("div");
+  div.className = "slide-card";
+  div.id = `slide-card-${idx}`;
+
+  // 角色勾選方塊
+  const charHTML = charKeys.map(k => {
+    const char = content.characters[k];
+    const checked = (slide.characters || []).includes(k);
+    return `
+      <label class="char-check-label${checked?" checked":""}">
+        <input type="checkbox" value="${k}" ${checked?"checked":""}>
+        <img src="${escHtml(char?.image||'')}" alt="${escHtml(char?.name||k)}"
+             onerror="this.src='assets/images/placeholder.svg'" class="char-check-img">
+        ${escHtml(char?.name || k)}
+      </label>
+    `;
+  }).join("");
+
+  div.innerHTML = `
+    <div class="slide-card-header">
+      <span class="slide-badge">${idx + 1}</span>
+      <input type="text" class="field-input slide-title-inline"
+             id="f-slide-${idx}-title" value="${escHtml(slide.title||'')}" placeholder="關卡標題">
+      <div class="slide-card-actions">
+        <button class="btn" onclick="moveSlide(${idx},-1)" ${idx===0?'disabled':''}>↑</button>
+        <button class="btn" onclick="moveSlide(${idx},1)">↓</button>
+        <button class="btn danger" onclick="removeSlide(${idx})">🗑</button>
+      </div>
+    </div>
+    <div class="slide-card-body">
+
+      <div class="field-section">
+        <div class="field-section-title">🗺 地標設定</div>
+        <div class="landmark-editor">
+          <div class="landmark-fields">
+            <label class="field-label">圖示（Emoji）</label>
+            <div class="emoji-row">
+              <input type="text" id="f-slide-${idx}-lm-icon" class="field-input emoji-input"
+                     value="${escHtml(lm.icon||'')}" maxlength="4" placeholder="📍">
+              <div class="emoji-presets">
+                ${["⛩️","🏠","📚","🐉","🏛️","📜","🍻","🌟","🎯","🗡️","🔮","🎪","🏆","🌸"].map(e =>
+                  `<button class="emoji-preset-btn" onclick="setEmoji(${idx},'${e}')">${e}</button>`
+                ).join("")}
+              </div>
+            </div>
+            <label class="field-label">地標名稱</label>
+            <input type="text" id="f-slide-${idx}-lm-name" class="field-input"
+                   value="${escHtml(lm.name||'')}" placeholder="地標名稱">
+            <label class="field-label" style="margin-top:8px">X 位置 (0–100)</label>
+            <input type="number" id="f-slide-${idx}-lm-x" class="field-input"
+                   value="${lm.x??50}" min="0" max="100" step="0.1">
+            <label class="field-label" style="margin-top:8px">Y 位置 (0–100)</label>
+            <input type="number" id="f-slide-${idx}-lm-y" class="field-input"
+                   value="${lm.y??50}" min="0" max="100" step="0.1">
+          </div>
+          <div class="landmark-map-preview" id="lm-preview-${idx}">
+            <img class="lm-map-img" src="assets/images/backgrounds/map.png"
+                 alt="地圖預覽" draggable="false">
+            <div class="lm-pin" id="lm-pin-${idx}"
+                 style="left:${lm.x??50}%;top:${lm.y??50}%">
+              <span class="lm-pin-icon">${escHtml(lm.icon||'📍')}</span>
+            </div>
+            <div class="lm-preview-hint">拖曳或點擊設定位置</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-section">
+        <div class="field-section-title">📋 基本資訊</div>
+        <label class="field-label">副標題</label>
+        <input type="text" id="f-slide-${idx}-subtitle" class="field-input"
+               value="${escHtml(slide.subtitle||'')}" placeholder="副標題">
+      </div>
+
+      <div class="field-section">
+        <div class="field-section-title">👥 出場角色</div>
+        <div class="chars-container">${charHTML}</div>
+      </div>
+
+      <div class="field-section">
+        <div class="field-section-title">📌 重點內容</div>
+        <div id="points-list-${idx}" class="points-list"></div>
+        <div class="add-btns">
+          <button class="btn" onclick="addPoint(${idx},'text')">＋ 文字重點</button>
+          <button class="btn" onclick="addPoint(${idx},'image')">＋ 圖片重點</button>
+        </div>
+      </div>
+
+      <div class="field-section">
+        <div class="field-section-title">💬 對話腳本</div>
+        <div id="dialogues-list-${idx}" class="dialogues-list"></div>
+        <button class="btn" onclick="addDialogue(${idx})">＋ 新增對話</button>
+      </div>
+
+    </div>
+  `;
+
+  // 初始化角色 checkbox 點擊樣式
+  div.querySelectorAll(".char-check-label").forEach(label => {
+    const cb = label.querySelector("input[type=checkbox]");
+    cb.addEventListener("change", () => label.classList.toggle("checked", cb.checked));
+  });
+
+  // 渲染 points / dialogues（div 尚未入 DOM，傳入 div 作為查詢範圍）
+  renderPoints(idx, slide.points || [], div);
+  renderDialogues(idx, slide.dialogues || [], div);
+  return div;
+}
+
+// ── 地圖拖曳 ─────────────────────────────────────────────────
+function bindLandmarkPreview(idx) {
+  const preview = document.getElementById(`lm-preview-${idx}`);
+  const pin     = document.getElementById(`lm-pin-${idx}`);
+  const xIn     = document.getElementById(`f-slide-${idx}-lm-x`);
+  const yIn     = document.getElementById(`f-slide-${idx}-lm-y`);
+  const iconIn  = document.getElementById(`f-slide-${idx}-lm-icon`);
+  if (!preview || !pin || !xIn || !yIn) return;
+
+  // icon 輸入 → 更新 pin 文字
+  if (iconIn) iconIn.addEventListener("input", () => {
+    const span = pin.querySelector(".lm-pin-icon");
+    if (span) span.textContent = iconIn.value || "📍";
+  });
+
+  // 數值輸入 → 移動 pin
+  const syncPin = () => {
+    pin.style.left = xIn.value + "%";
+    pin.style.top  = yIn.value + "%";
+  };
+  xIn.addEventListener("input", syncPin);
+  yIn.addEventListener("input", syncPin);
+
+  // 拖曳 pin
+  let dragging = false;
+  pin.addEventListener("pointerdown", e => {
+    dragging = true;
+    pin.setPointerCapture(e.pointerId);
+    e.preventDefault(); e.stopPropagation();
+  });
+  pin.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    const rect = preview.getBoundingClientRect();
+    const x = +clamp((e.clientX - rect.left) / rect.width  * 100, 0, 100).toFixed(1);
+    const y = +clamp((e.clientY - rect.top)  / rect.height * 100, 0, 100).toFixed(1);
+    xIn.value = x; yIn.value = y;
+    pin.style.left = x + "%"; pin.style.top = y + "%";
+  });
+  pin.addEventListener("pointerup", () => { dragging = false; });
+
+  // 點擊預覽空白處設定座標
+  preview.addEventListener("click", e => {
+    if (e.target === pin || pin.contains(e.target)) return;
+    const rect = preview.getBoundingClientRect();
+    const x = +clamp((e.clientX - rect.left) / rect.width  * 100, 0, 100).toFixed(1);
+    const y = +clamp((e.clientY - rect.top)  / rect.height * 100, 0, 100).toFixed(1);
+    xIn.value = x; yIn.value = y;
+    pin.style.left = x + "%"; pin.style.top = y + "%";
+  });
+}
+
+function setEmoji(slideIdx, emoji) {
+  const input = document.getElementById(`f-slide-${slideIdx}-lm-icon`);
+  if (!input) return;
+  input.value = emoji;
+  input.dispatchEvent(new Event("input"));
+}
+
+// ── 重點列表 ─────────────────────────────────────────────────
+function renderPoints(slideIdx, points, context) {
+  const root = context || document;
+  const list = root.querySelector ? root.querySelector(`#points-list-${slideIdx}`)
+                                   : document.getElementById(`points-list-${slideIdx}`);
+  if (!list) return;
+  list.innerHTML = "";
+  points.forEach((p, i) => list.appendChild(buildPointRow(slideIdx, i, String(p))));
+}
+
+function buildPointRow(slideIdx, pIdx, value) {
+  const isImg = IMG_EXT_RE.test(value.trim());
+  const div   = document.createElement("div");
+  div.className = "point-row";
+
+  if (isImg) {
+    const src = value.includes("/") ? value : `assets/images/points/${value}`;
+    div.innerHTML = `
+      <span class="point-type-badge img-badge">🖼 圖片</span>
+      <img class="point-thumb" src="${escHtml(src)}" alt=""
+           onerror="this.src='assets/images/placeholder.svg'">
+      <input type="text" class="point-value field-input" value="${escHtml(value)}" readonly>
+      <button class="btn" onclick="this.nextElementSibling.click()">更換</button>
+      <input type="file" accept="image/*" style="display:none"
+             onchange="handlePointImgReplace(this,${slideIdx},${pIdx})">
+      <div class="point-actions">
+        <button class="btn" onclick="movePoint(${slideIdx},${pIdx},-1)">↑</button>
+        <button class="btn" onclick="movePoint(${slideIdx},${pIdx},1)">↓</button>
+        <button class="btn danger" onclick="removePoint(${slideIdx},${pIdx})">✕</button>
+      </div>
+    `;
+  } else {
+    div.innerHTML = `
+      <span class="point-type-badge text-badge">✏️ 文字</span>
+      <textarea class="point-value field-textarea" rows="2"
+                placeholder="支援 **粗體** 格式">${escHtml(value)}</textarea>
+      <div class="point-actions">
+        <button class="btn" onclick="movePoint(${slideIdx},${pIdx},-1)">↑</button>
+        <button class="btn" onclick="movePoint(${slideIdx},${pIdx},1)">↓</button>
+        <button class="btn danger" onclick="removePoint(${slideIdx},${pIdx})">✕</button>
+      </div>
+    `;
+  }
+  return div;
+}
+
+function addPoint(slideIdx, type) {
+  const list = document.getElementById(`points-list-${slideIdx}`);
+  if (!list) return;
+  if (type === "image") {
+    const fi = document.createElement("input");
+    fi.type = "file"; fi.accept = "image/*";
+    fi.addEventListener("change", function () {
+      handlePointImgNew(this, slideIdx);
+    });
+    fi.click();
+  } else {
+    list.appendChild(buildPointRow(slideIdx, list.children.length, ""));
+  }
+}
+
+async function handlePointImgNew(fileInput, slideIdx) {
+  const file = fileInput.files[0];
+  if (!file) return;
+  showStatus("上傳中...", "");
+  try {
+    const b64 = await readFileAsBase64(file);
+    const result = await fetchUpload(file.name, "assets/images/points", b64);
+    if (result.ok) {
+      const list = document.getElementById(`points-list-${slideIdx}`);
+      if (!list) return;
+      const fname = result.path.split("/").pop();
+      list.appendChild(buildPointRow(slideIdx, list.children.length, fname));
+      showStatus("上傳成功", "ok");
+      showToast("圖片上傳成功");
+    } else {
+      showStatus("上傳失敗", "error");
+      showToast("上傳失敗：" + result.error, "error");
+    }
+  } catch (e) {
+    showStatus("上傳失敗", "error");
+    showToast("上傳失敗：" + e.message, "error");
+  }
+}
+
+async function handlePointImgReplace(fileInput, slideIdx, pIdx) {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const list = document.getElementById(`points-list-${slideIdx}`);
+  const row  = list?.children[pIdx];
+  if (row) {
+    const thumb = row.querySelector(".point-thumb");
+    if (thumb) thumb.src = URL.createObjectURL(file);
+  }
+  showStatus("上傳中...", "");
+  try {
+    const b64 = await readFileAsBase64(file);
+    const result = await fetchUpload(file.name, "assets/images/points", b64);
+    if (result.ok) {
+      const fname = result.path.split("/").pop();
+      if (row) {
+        const input = row.querySelector(".point-value");
+        if (input) input.value = fname;
+        const thumb = row.querySelector(".point-thumb");
+        if (thumb) thumb.src = result.path + "?t=" + Date.now();
+      }
+      showStatus("上傳成功", "ok");
+      showToast("圖片更換成功");
+    } else {
+      showStatus("上傳失敗", "error");
+      showToast("上傳失敗：" + result.error, "error");
+    }
+  } catch (e) {
+    showStatus("上傳失敗", "error");
+    showToast("上傳失敗：" + e.message, "error");
+  }
+}
+
+function removePoint(slideIdx, pIdx) {
+  const list = document.getElementById(`points-list-${slideIdx}`);
+  if (list && list.children[pIdx]) list.removeChild(list.children[pIdx]);
+}
+
+function movePoint(slideIdx, pIdx, dir) {
+  const list = document.getElementById(`points-list-${slideIdx}`);
+  if (!list) return;
+  const items = Array.from(list.children);
+  const ni = pIdx + dir;
+  if (ni < 0 || ni >= items.length) return;
+  dir > 0
+    ? list.insertBefore(items[pIdx], items[ni].nextSibling)
+    : list.insertBefore(items[pIdx], items[ni]);
+}
+
+// ── 對話腳本 ─────────────────────────────────────────────────
+function renderDialogues(slideIdx, dialogues, context) {
+  const root = context || document;
+  const list = root.querySelector ? root.querySelector(`#dialogues-list-${slideIdx}`)
+                                   : document.getElementById(`dialogues-list-${slideIdx}`);
+  if (!list) return;
+  list.innerHTML = "";
+  const charKeys = Object.keys(content.characters || {});
+  dialogues.forEach((dlg, i) => list.appendChild(buildDialogueRow(slideIdx, i, dlg, charKeys)));
+}
+
+function buildDialogueRow(slideIdx, dIdx, dlg, charKeys) {
+  const div = document.createElement("div");
+  div.className = "dialogue-row";
+  const options = charKeys.map(k => {
+    const char = content.characters[k];
+    return `<option value="${k}" ${dlg.speaker===k?"selected":""}>${escHtml(char?.name||k)}</option>`;
+  }).join("");
+  div.innerHTML = `
+    <select class="dlg-speaker field-select">
+      <option value="" ${!dlg.speaker?"selected":""}>（旁白）</option>
+      ${options}
+    </select>
+    <textarea class="dlg-text field-textarea" rows="2"
+              placeholder="對話內容">${escHtml(dlg.text||'')}</textarea>
+    <div class="dlg-actions">
+      <button class="btn" onclick="moveDialogue(${slideIdx},${dIdx},-1)">↑</button>
+      <button class="btn" onclick="moveDialogue(${slideIdx},${dIdx},1)">↓</button>
+      <button class="btn danger" onclick="removeDialogue(${slideIdx},${dIdx})">✕</button>
+    </div>
+  `;
+  return div;
+}
+
+function addDialogue(slideIdx) {
+  const list = document.getElementById(`dialogues-list-${slideIdx}`);
+  if (!list) return;
+  const charKeys = Object.keys(content.characters || {});
+  list.appendChild(buildDialogueRow(slideIdx, list.children.length, {speaker:"",text:""}, charKeys));
+}
+
+function removeDialogue(slideIdx, dIdx) {
+  const list = document.getElementById(`dialogues-list-${slideIdx}`);
+  if (list && list.children[dIdx]) list.removeChild(list.children[dIdx]);
+}
+
+function moveDialogue(slideIdx, dIdx, dir) {
+  const list = document.getElementById(`dialogues-list-${slideIdx}`);
+  if (!list) return;
+  const items = Array.from(list.children);
+  const ni = dIdx + dir;
+  if (ni < 0 || ni >= items.length) return;
+  dir > 0
+    ? list.insertBefore(items[dIdx], items[ni].nextSibling)
+    : list.insertBefore(items[dIdx], items[ni]);
+}
+
+// ── 關卡管理 ─────────────────────────────────────────────────
+function moveSlide(idx, dir) {
+  const slides = collectSlides();
+  const ni = idx + dir;
+  if (ni < 0 || ni >= slides.length) return;
+  [slides[idx], slides[ni]] = [slides[ni], slides[idx]];
+  rerenderSlides(slides);
+}
+
+function removeSlide(idx) {
+  if (!confirm(`確定要刪除第 ${idx + 1} 關？此操作無法復原。`)) return;
+  const slides = collectSlides();
+  slides.splice(idx, 1);
+  rerenderSlides(slides);
+}
+
+function addNewSlide() {
+  const slides = collectSlides();
+  const newIdx = slides.length;
+  slides.push({
+    id: newIdx + 1,
+    landmark: { icon: "📍", name: "新地標", x: 50, y: 50 },
+    title: "新關卡",
+    subtitle: "",
+    characters: [],
+    points: [],
+    dialogues: []
+  });
+  rerenderSlides(slides);
+  setTimeout(() => {
+    const card = document.getElementById(`slide-card-${newIdx}`);
+    if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 100);
+}
+
+function updateSidebarSlides() {
+  const nav = document.getElementById("nav-slides");
+  if (!nav) return;
+  const cards = document.querySelectorAll(".slide-card");
+  nav.innerHTML = '<a class="nav-link" href="#section-slides">📖 關卡設定</a>';
+  cards.forEach((_, idx) => {
+    const title = document.getElementById(`f-slide-${idx}-title`)?.value || `關卡 ${idx+1}`;
+    const a = document.createElement("a");
+    a.className = "nav-sub-link";
+    a.href = `#slide-card-${idx}`;
+    a.textContent = `${idx + 1}. ${title}`;
+    nav.appendChild(a);
+  });
+}
+
+// ── 資料收集 ─────────────────────────────────────────────────
+function collectSlides() {
+  return Array.from(document.querySelectorAll(".slide-card")).map((card, idx) => ({
+    id: idx + 1,
+    landmark: {
+      icon: getVal(`f-slide-${idx}-lm-icon`),
+      name: getVal(`f-slide-${idx}-lm-name`),
+      x:    parseFloat(getVal(`f-slide-${idx}-lm-x`))  || 0,
+      y:    parseFloat(getVal(`f-slide-${idx}-lm-y`))  || 0,
+    },
+    title:      getVal(`f-slide-${idx}-title`),
+    subtitle:   getVal(`f-slide-${idx}-subtitle`),
+    characters: Array.from(card.querySelectorAll(".chars-container input[type=checkbox]:checked"))
+                     .map(cb => cb.value),
+    points: Array.from(card.querySelectorAll(".point-row"))
+                 .map(r => r.querySelector(".point-value")?.value || "")
+                 .filter(v => v.trim() !== ""),
+    dialogues: Array.from(card.querySelectorAll(".dialogue-row")).map(r => ({
+      speaker: r.querySelector(".dlg-speaker")?.value || "",
+      text:    r.querySelector(".dlg-text")?.value    || "",
+    })),
+  }));
+}
+
+function collectAll() {
+  return {
+    mode: getVal("f-mode"),
+    meta: {
+      title:    getVal("f-meta-title"),
+      subtitle: getVal("f-meta-subtitle"),
+      tagline:  getVal("f-meta-tagline"),
+    },
+    ui: Object.fromEntries(UI_FIELD_DEFS.map(([k]) => [k, getVal(`f-ui-${k}`) ?? ""])),
+    audio: {
+      src:    getVal("f-audio-src"),
+      loop:   document.getElementById("f-audio-loop")?.checked ?? true,
+      volume: parseFloat(getVal("f-audio-volume")) || 0.2,
+    },
+    backgrounds: {
+      welcome: getVal("f-bg-welcome") || "",
+      map:     getVal("f-bg-map")     || "",
+    },
+    characters: collectCharacters(),
+    slides: collectSlides(),
+  };
+}
+
+// ── 儲存 ─────────────────────────────────────────────────────
+async function saveAll() {
+  const btn = document.getElementById("btn-save");
+  btn.disabled = true;
+  btn.textContent = "儲存中...";
+  showStatus("儲存中...", "");
+  try {
+    const payload = collectAll();
+    const res = await fetch("/api/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+    if (result.ok) {
+      content = payload;
+      isDirty = false;
+      showStatus("已儲存 ✓", "ok");
+      showToast("儲存成功！");
+    } else {
+      showStatus("儲存失敗", "error");
+      showToast("儲存失敗：" + result.error, "error");
+    }
+  } catch (e) {
+    showStatus("儲存失敗", "error");
+    showToast("儲存失敗：" + e.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "💾 儲存";
+  }
+}
+
+// ── 媒體上傳 ─────────────────────────────────────────────────
+async function handleMediaUpload(fileInput, destDir, targetInputId, previewId, forceFilename, callback) {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  if (previewId) {
+    const prev = document.getElementById(previewId);
+    if (prev && prev.tagName === "IMG") {
+      prev.src = URL.createObjectURL(file);
+      prev.style.opacity = "1";
+    }
+  }
+
+  showStatus("上傳中...", "");
+  try {
+    const b64 = await readFileAsBase64(file);
+    const filename = forceFilename || file.name;
+    const result = await fetchUpload(filename, destDir, b64);
+
+    if (result.ok) {
+      if (targetInputId) setVal(targetInputId, result.path);
+      if (previewId) {
+        const prev = document.getElementById(previewId);
+        if (prev && prev.tagName === "IMG") {
+          prev.src = result.path + "?t=" + Date.now();
+          prev.style.opacity = "1";
+        }
+      }
+      if (callback) callback(result.path);
+      showStatus("上傳成功", "ok");
+      showToast("檔案上傳成功");
+    } else {
+      showStatus("上傳失敗", "error");
+      showToast("上傳失敗：" + result.error, "error");
+    }
+  } catch (e) {
+    showStatus("上傳失敗", "error");
+    showToast("上傳失敗：" + e.message, "error");
+  }
+}
+
+async function fetchUpload(filename, destDir, base64Data) {
+  const res = await fetch("/api/upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ filename, dest_dir: destDir, data: base64Data })
+  });
+  return res.json();
+}
+
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = e => resolve(e.target.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── 工具函式 ─────────────────────────────────────────────────
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : "";
+}
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+function escHtml(s) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+function escColor(c) {
+  return (c && /^#[0-9a-fA-F]{6}$/.test(c)) ? c : "#ffffff";
+}
+function showStatus(msg, type) {
+  const el = document.getElementById("save-status");
+  if (!el) return;
+  el.textContent = msg;
+  el.className = "save-status " + (type || "");
+}
+function showToast(msg, type) {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.className = type === "error" ? "toast-error" : "toast-ok";
+  toast.hidden = false;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { toast.hidden = true; }, 3000);
+}
+
+function bindDirtyTracking() {
+  document.querySelectorAll("input, textarea, select").forEach(el => {
+    el.addEventListener("input", () => { isDirty = true; });
+    el.addEventListener("change", () => { isDirty = true; });
+  });
+}
+
+window.addEventListener("beforeunload", e => {
+  if (isDirty) { e.preventDefault(); e.returnValue = ""; }
+});
+
+// ── 事件綁定 ─────────────────────────────────────────────────
+document.getElementById("btn-save").addEventListener("click", saveAll);
+document.getElementById("btn-add-slide").addEventListener("click", addNewSlide);
+document.getElementById("btn-add-char").addEventListener("click", addNewCharacter);
+
+// Sidebar 關卡標題即時更新
+document.addEventListener("input", e => {
+  if (e.target && e.target.classList.contains("slide-title-inline")) {
+    updateSidebarSlides();
+  }
+});
+</script>
+</body>
+</html>

@@ -9,7 +9,24 @@
       "Bash(mv images/placeholder.svg assets/images/placeholder.svg)",
       "Bash(mv images/title-bg.png assets/images/backgrounds/title-bg.png)",
       "Bash(mv images/title-bg_1.png assets/images/backgrounds/title-bg_1.png)",
-      "Bash(mv images/map.png assets/images/backgrounds/map.png)"
+      "Bash(mv images/map.png assets/images/backgrounds/map.png)",
+      "Bash(py editor_server.py)",
+      "Bash(curl -s \"http://localhost:8001/api/content\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('OK - 標題:', d['meta']['title']\\)\")",
+      "Bash(start /B py editor_server.py)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('OK meta.title:', d['meta']['title']\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('API OK:', d['meta']['title']\\)\")",
+      "Bash(curl -s \"http://localhost:8001/editor.html\")",
+      "Bash(python -c \"import sys,json; print\\('Save:', json.load\\(sys.stdin\\)\\)\")",
+      "Bash(curl -s -X POST http://localhost:8001/api/upload -H 'Content-Type: application/json' -d '{\"filename\":\"test.txt\",\"dest_dir\":\"../../etc\",\"data\":\"dGVzdA==\"}')",
+      "Bash(python -c \"import sys,json; r=json.load\\(sys.stdin\\); print\\('Path traversal blocked:', 'error' in r\\)\")",
+      "Bash(curl -s -X POST http://localhost:8001/api/upload -H 'Content-Type: application/json' -d '{\"filename\":\"evil.exe\",\"dest_dir\":\"assets/js\",\"data\":\"dGVzdA==\"}')",
+      "Bash(python -c \"import sys,json; r=json.load\\(sys.stdin\\); print\\('Non-whitelist blocked:', 'error' in r\\)\")",
+      "Bash(curl -s -X POST http://localhost:8001/api/upload -H 'Content-Type: application/json' -d '{\"filename\":\"evil.exe\",\"dest_dir\":\"assets/images/points\",\"data\":\"dGVzdA==\"}')",
+      "Bash(python -c \"import sys,json; r=json.load\\(sys.stdin\\); print\\('Bad ext blocked:', 'error' in r\\)\")",
+      "Bash(netstat -ano)",
+      "Bash(taskkill:*)",
+      "Bash(curl -s http://localhost:8001/editor.html)"
     ]
   }
 }
