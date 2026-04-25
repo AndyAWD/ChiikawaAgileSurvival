@@ -304,12 +304,8 @@ body {
 }
 
 /* ============================================================
-   地標編輯器（地圖預覽 + 拖曳）
+   地標編輯器欄位
    ============================================================ */
-.landmark-editor {
-  display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;
-}
-.landmark-fields { width: 160px; flex-shrink: 0; }
 .xy-row { display: flex; gap: 8px; }
 .xy-item { flex: 1; min-width: 0; }
 .xy-item .field-input { padding: 6px 8px; width: 100%; }
@@ -326,30 +322,132 @@ body {
 }
 .emoji-preset-btn:hover { background: var(--pink); }
 
-.landmark-map-preview {
-  position: relative; flex: 1; min-width: 200px; max-width: 50%;
-  border-radius: var(--radius-sm); border: 2px solid var(--line);
-  overflow: hidden; cursor: crosshair;
-  box-shadow: 0 2px 8px var(--shadow);
+/* ============================================================
+   全覽地圖（關卡設定頂端）
+   ============================================================ */
+#slide-map-overview {
+  margin-bottom: 20px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
   background: var(--sky);
+  width: 75%;
 }
-.lm-map-img {
+.slide-map-wrap { position: relative; }
+.slide-map-wrap .lm-map-img {
   display: block; width: 100%; height: auto;
   pointer-events: none; user-select: none;
 }
-.lm-pin {
-  position: absolute; transform: translate(-50%, -50%);
-  font-size: 24px; cursor: grab;
-  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
-  user-select: none; touch-action: none; z-index: 2;
+.slide-map-hint {
+  text-align: center; font-size: 11px;
+  color: var(--brown-soft); padding: 5px 0 6px;
+  background: rgba(255,248,231,0.9);
 }
-.lm-pin:active { cursor: grabbing; filter: drop-shadow(0 2px 12px rgba(0,0,0,0.8)); }
-.lm-preview-hint {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  text-align: center; font-size: 10px; color: var(--brown);
-  background: rgba(255,248,231,0.88); padding: 3px 0;
+.lm-paths-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; z-index: 1;
+}
+/* 路徑線條（與 style.css .map-path-line 完全一致） */
+.lm-path-line {
+  fill: none;
+  stroke: #3E2723;
+  stroke-width: 0.8;
+  stroke-dasharray: 1.5 1.5;
+  opacity: 1;
+}
+/* 地標（與 style.css .landmark 系列完全一致） */
+.landmark {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center;
+  cursor: grab; z-index: 2;
+  user-select: none; touch-action: none;
+  transition: transform 0.2s ease;
+}
+.landmark:hover { transform: translate(-50%, -55%) scale(1.08); z-index: 10; }
+.landmark:active { cursor: grabbing; }
+.landmark-icon-wrap {
+  position: relative;
+  width: 72px; height: 72px;
+  background: var(--cream);
+  border: 3px solid var(--brown);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px;
+  box-shadow: 0 6px 0 var(--brown), 0 10px 20px var(--shadow-deep);
+}
+.landmark-icon-wrap::after {
+  content: "";
+  position: absolute; inset: -6px;
+  border-radius: 50%;
+  border: 3px solid var(--pink-deep);
+  animation: halo 1.5s ease-in-out infinite;
   pointer-events: none;
 }
+@keyframes halo {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.15); }
+}
+.landmark-badge {
+  position: absolute;
+  top: -8px; left: -8px;
+  width: 26px; height: 26px;
+  background: var(--brown); color: #fff;
+  border-radius: 50%;
+  font-size: 14px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--cream);
+}
+.landmark-label {
+  margin-top: 8px;
+  padding: 4px 12px;
+  background: var(--cream);
+  border: 2px solid var(--brown);
+  border-radius: 999px;
+  font-size: 13px; font-weight: 700;
+  color: var(--brown);
+  white-space: nowrap;
+  box-shadow: 0 2px 0 var(--brown);
+}
+.landmark-card {
+  position: absolute;
+  bottom: calc(100% + 14px); left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  width: 200px; padding: 12px;
+  background: #fff;
+  border: 2px solid var(--brown);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 20px var(--shadow-deep);
+  opacity: 0; pointer-events: none;
+  transition: all 0.2s ease; z-index: 5;
+}
+.landmark:hover .landmark-card { opacity: 1; transform: translateX(-50%) translateY(0); }
+.landmark-card::after {
+  content: "";
+  position: absolute; top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: var(--brown);
+}
+.landmark.card-below .landmark-card {
+  bottom: auto; top: calc(100% + 14px);
+  transform: translateX(-50%) translateY(-6px);
+}
+.landmark.card-below:hover .landmark-card { transform: translateX(-50%) translateY(0); }
+.landmark.card-below .landmark-card::after {
+  top: auto; bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: var(--brown);
+}
+.lc-title { font-size: 15px; font-weight: 900; color: var(--brown); margin-bottom: 4px; }
+.lc-subtitle { font-size: 12px; color: var(--brown-soft); margin-bottom: 8px; }
+.lc-chars { display: flex; gap: 4px; }
+.lc-char {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--cream); border: 2px solid var(--brown); object-fit: cover;
+}
+
 
 /* ============================================================
    角色勾選方塊
@@ -926,8 +1024,10 @@ function renderSlides() {
   (content.slides || []).forEach((slide, idx) => {
     container.appendChild(buildSlideCard(slide, idx, charKeys));
   });
-  (content.slides || []).forEach((_, idx) => bindLandmarkPreview(idx));
+  (content.slides || []).forEach((_, idx) => bindLandmarkInputs(idx));
   updateSidebarSlides();
+  buildSlideMapOverview();
+  setTimeout(renderSlideMapOverview, 0);
 }
 
 function rerenderSlides(slides) {
@@ -935,9 +1035,11 @@ function rerenderSlides(slides) {
   container.innerHTML = "";
   const charKeys = Object.keys(content.characters || {});
   slides.forEach((slide, idx) => container.appendChild(buildSlideCard(slide, idx, charKeys)));
-  slides.forEach((_, idx) => bindLandmarkPreview(idx));
+  slides.forEach((_, idx) => bindLandmarkInputs(idx));
   updateSidebarSlides();
   hideUploadUIsIfReadonly();
+  buildSlideMapOverview();
+  setTimeout(renderSlideMapOverview, 0);
 }
 
 function buildSlideCard(slide, idx, charKeys) {
@@ -975,36 +1077,29 @@ function buildSlideCard(slide, idx, charKeys) {
 
       <div class="field-section">
         <div class="field-section-title">🗺 地標設定</div>
-        <div class="landmark-editor">
-          <div class="landmark-fields">
-            <label class="field-label">圖示（Emoji）</label>
-            <div class="emoji-row">
-              <input type="text" id="f-slide-${idx}-lm-icon" class="field-input emoji-input"
-                     value="${escHtml(lm.icon||'')}" maxlength="4" placeholder="📍">
-              <div class="emoji-presets">
-                ${["⛩️","🏠","📚","🐉","🏛️","📜","🍻","🌟","🎯","🗡️","🔮","🎪","🏆","🌸"].map(e =>
-                  `<button class="emoji-preset-btn" onclick="setEmoji(${idx},'${e}')">${e}</button>`
-                ).join("")}
-              </div>
-            </div>
-            <label class="field-label">地標名稱</label>
-            <input type="text" id="f-slide-${idx}-lm-name" class="field-input"
-                   value="${escHtml(lm.name||'')}" placeholder="地標名稱">
-            <label class="field-label" style="margin-top:8px">X 位置 (0–100)</label>
+        <label class="field-label">圖示（Emoji）</label>
+        <div class="emoji-row">
+          <input type="text" id="f-slide-${idx}-lm-icon" class="field-input emoji-input"
+                 value="${escHtml(lm.icon||'')}" maxlength="4" placeholder="📍">
+          <div class="emoji-presets">
+            ${["⛩️","🏠","📚","🐉","🏛️","📜","🍻","🌟","🎯","🗡️","🔮","🎪","🏆","🌸"].map(e =>
+              `<button class="emoji-preset-btn" onclick="setEmoji(${idx},'${e}')">${e}</button>`
+            ).join("")}
+          </div>
+        </div>
+        <label class="field-label">地標名稱</label>
+        <input type="text" id="f-slide-${idx}-lm-name" class="field-input"
+               value="${escHtml(lm.name||'')}" placeholder="地標名稱">
+        <div class="xy-row" style="margin-top:8px">
+          <div class="xy-item">
+            <label class="field-label">X 位置 (0–100)</label>
             <input type="number" id="f-slide-${idx}-lm-x" class="field-input"
                    value="${lm.x??50}" min="0" max="100" step="0.1">
-            <label class="field-label" style="margin-top:8px">Y 位置 (0–100)</label>
+          </div>
+          <div class="xy-item">
+            <label class="field-label">Y 位置 (0–100)</label>
             <input type="number" id="f-slide-${idx}-lm-y" class="field-input"
                    value="${lm.y??50}" min="0" max="100" step="0.1">
-          </div>
-          <div class="landmark-map-preview" id="lm-preview-${idx}">
-            <img class="lm-map-img" src="assets/images/backgrounds/map.png"
-                 alt="地圖預覽" draggable="false">
-            <div class="lm-pin" id="lm-pin-${idx}"
-                 style="left:${lm.x??50}%;top:${lm.y??50}%">
-              <span class="lm-pin-icon">${escHtml(lm.icon||'📍')}</span>
-            </div>
-            <div class="lm-preview-hint">拖曳或點擊設定位置</div>
           </div>
         </div>
       </div>
@@ -1051,54 +1146,142 @@ function buildSlideCard(slide, idx, charKeys) {
   return div;
 }
 
-// ── 地圖拖曳 ─────────────────────────────────────────────────
-function bindLandmarkPreview(idx) {
-  const preview = document.getElementById(`lm-preview-${idx}`);
-  const pin     = document.getElementById(`lm-pin-${idx}`);
-  const xIn     = document.getElementById(`f-slide-${idx}-lm-x`);
-  const yIn     = document.getElementById(`f-slide-${idx}-lm-y`);
-  const iconIn  = document.getElementById(`f-slide-${idx}-lm-icon`);
-  if (!preview || !pin || !xIn || !yIn) return;
+// ── 地標輸入同步 ──────────────────────────────────────────────
+function bindLandmarkInputs(idx) {
+  const xIn   = document.getElementById(`f-slide-${idx}-lm-x`);
+  const yIn   = document.getElementById(`f-slide-${idx}-lm-y`);
+  const iconIn = document.getElementById(`f-slide-${idx}-lm-icon`);
+  const nameIn = document.getElementById(`f-slide-${idx}-lm-name`);
+  if (!xIn || !yIn) return;
+  const update = () => renderSlideMapOverview();
+  if (iconIn) iconIn.addEventListener("input", update);
+  if (nameIn) nameIn.addEventListener("input", update);
+  xIn.addEventListener("input", update);
+  yIn.addEventListener("input", update);
+}
 
-  // icon 輸入 → 更新 pin 文字
-  if (iconIn) iconIn.addEventListener("input", () => {
-    const span = pin.querySelector(".lm-pin-icon");
-    if (span) span.textContent = iconIn.value || "📍";
+// ── 全覽地圖 ──────────────────────────────────────────────────
+function buildSlideMapOverview() {
+  if (document.getElementById("slide-map-overview")) return;
+  const overview = document.createElement("div");
+  overview.id = "slide-map-overview";
+  overview.innerHTML = `
+    <div class="slide-map-wrap">
+      <img class="lm-map-img" src="assets/images/backgrounds/map.png"
+           alt="全覽地圖" draggable="false">
+      <svg class="lm-paths-svg" viewBox="0 0 100 100"
+           preserveAspectRatio="none"></svg>
+    </div>
+    <div class="slide-map-hint">點擊地標跳至對應關卡，可拖曳調整位置</div>
+  `;
+  const container = document.getElementById("slides-container");
+  container.parentNode.insertBefore(overview, container);
+}
+
+function collectAllLandmarks() {
+  return Array.from(document.querySelectorAll(".slide-card")).map((card, idx) => {
+    const checkedChars = Array.from(card.querySelectorAll(".chars-container input[type=checkbox]:checked"))
+      .map(cb => cb.value);
+    return {
+      idx,
+      x:          parseFloat(document.getElementById(`f-slide-${idx}-lm-x`)?.value) || 0,
+      y:          parseFloat(document.getElementById(`f-slide-${idx}-lm-y`)?.value) || 0,
+      icon:       document.getElementById(`f-slide-${idx}-lm-icon`)?.value || "📍",
+      name:       document.getElementById(`f-slide-${idx}-lm-name`)?.value || `關卡 ${idx + 1}`,
+      title:      document.getElementById(`f-slide-${idx}-title`)?.value || "",
+      subtitle:   document.getElementById(`f-slide-${idx}-subtitle`)?.value || "",
+      characters: checkedChars,
+    };
   });
+}
 
-  // 數值輸入 → 移動 pin
-  const syncPin = () => {
-    pin.style.left = xIn.value + "%";
-    pin.style.top  = yIn.value + "%";
-  };
-  xIn.addEventListener("input", syncPin);
-  yIn.addEventListener("input", syncPin);
-
-  // 拖曳 pin
-  let dragging = false;
-  pin.addEventListener("pointerdown", e => {
-    dragging = true;
-    pin.setPointerCapture(e.pointerId);
-    e.preventDefault(); e.stopPropagation();
+function renderSlideMapOverview() {
+  const overview = document.getElementById("slide-map-overview");
+  if (!overview) return;
+  const wrap = overview.querySelector(".slide-map-wrap");
+  const svg  = overview.querySelector(".lm-paths-svg");
+  wrap.querySelectorAll(".landmark").forEach(el => el.remove());
+  const all = collectAllLandmarks();
+  if (svg) {
+    if (all.length > 1) {
+      const pts   = all.map(lm => `${lm.x},${lm.y}`);
+      const pathD = `M ${pts[0]} ` + pts.slice(1).map(p => "L " + p).join(" ");
+      svg.innerHTML = `<path d="${pathD}" class="lm-path-line"/>`;
+    } else {
+      svg.innerHTML = "";
+    }
+  }
+  all.forEach(lm => {
+    const cardBelow = lm.y < 35;
+    const charDots = lm.characters.map(key => {
+      const c = content.characters?.[key];
+      if (!c) return "";
+      return `<img class="lc-char" src="${escHtml(c.image||"")}" alt="${escHtml(c.name||key)}"
+                   onerror="this.src='assets/images/placeholder.svg'">`;
+    }).join("");
+    const el = document.createElement("div");
+    el.className = "landmark" + (cardBelow ? " card-below" : "");
+    el.dataset.idx = lm.idx;
+    el.style.left = lm.x + "%";
+    el.style.top  = lm.y + "%";
+    el.innerHTML = `
+      <div class="landmark-icon-wrap">
+        <span class="landmark-icon">${lm.icon || "📍"}</span>
+        <span class="landmark-badge">${lm.idx + 1}</span>
+      </div>
+      <div class="landmark-label">${escHtml(lm.name)}</div>
+      <div class="landmark-card">
+        <div class="lc-title">${escHtml(lm.title)}</div>
+        <div class="lc-subtitle">${escHtml(lm.subtitle)}</div>
+        <div class="lc-chars">${charDots}</div>
+      </div>
+    `;
+    wrap.appendChild(el);
   });
-  pin.addEventListener("pointermove", e => {
+  bindSlideMapOverviewDrag(wrap);
+}
+
+function bindSlideMapOverviewDrag(wrap) {
+  let dragging = null, startX, startY, moved;
+  wrap.querySelectorAll(".landmark").forEach(pin => {
+    pin.addEventListener("pointerdown", e => {
+      dragging = pin;
+      moved = false;
+      startX = e.clientX; startY = e.clientY;
+      pin.setPointerCapture(e.pointerId);
+      e.preventDefault(); e.stopPropagation();
+    });
+  });
+  wrap.addEventListener("pointermove", e => {
     if (!dragging) return;
-    const rect = preview.getBoundingClientRect();
+    if (Math.abs(e.clientX - startX) > 3 || Math.abs(e.clientY - startY) > 3) moved = true;
+    const rect = wrap.getBoundingClientRect();
     const x = +clamp((e.clientX - rect.left) / rect.width  * 100, 0, 100).toFixed(1);
     const y = +clamp((e.clientY - rect.top)  / rect.height * 100, 0, 100).toFixed(1);
-    xIn.value = x; yIn.value = y;
-    pin.style.left = x + "%"; pin.style.top = y + "%";
+    dragging.style.left = x + "%";
+    dragging.style.top  = y + "%";
+    const idx = parseInt(dragging.dataset.idx);
+    const xIn = document.getElementById(`f-slide-${idx}-lm-x`);
+    const yIn = document.getElementById(`f-slide-${idx}-lm-y`);
+    if (xIn) xIn.value = x;
+    if (yIn) yIn.value = y;
+    const svg = wrap.querySelector(".lm-paths-svg");
+    if (svg) {
+      const all = collectAllLandmarks();
+      if (all.length > 1) {
+        const pts = all.map(lm => `${lm.x},${lm.y}`);
+        svg.innerHTML = `<path d="M ${pts[0]} ${pts.slice(1).map(p => "L " + p).join(" ")}" class="lm-path-line"/>`;
+      }
+    }
   });
-  pin.addEventListener("pointerup", () => { dragging = false; });
-
-  // 點擊預覽空白處設定座標
-  preview.addEventListener("click", e => {
-    if (e.target === pin || pin.contains(e.target)) return;
-    const rect = preview.getBoundingClientRect();
-    const x = +clamp((e.clientX - rect.left) / rect.width  * 100, 0, 100).toFixed(1);
-    const y = +clamp((e.clientY - rect.top)  / rect.height * 100, 0, 100).toFixed(1);
-    xIn.value = x; yIn.value = y;
-    pin.style.left = x + "%"; pin.style.top = y + "%";
+  wrap.addEventListener("pointerup", () => {
+    if (!dragging) return;
+    if (!moved) {
+      const idx = parseInt(dragging.dataset.idx);
+      const card = document.getElementById(`slide-card-${idx}`);
+      if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    dragging = null;
   });
 }
 
