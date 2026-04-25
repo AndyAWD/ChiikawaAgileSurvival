@@ -558,11 +558,11 @@ body {
 <!-- Toast 通知 -->
 <div id="toast" hidden></div>
 
-<!-- 載入失敗提示（直接雙擊開啟時顯示） -->
+<!-- 載入失敗提示（直接雙擊或伺服器未啟動時顯示） -->
 <div id="load-error" class="load-error" hidden>
   <div class="load-error-box">
     <h2>🚧 無法載入內容</h2>
-    <p>瀏覽器禁止直接讀取本機檔案，請改用以下方式開啟編輯器：</p>
+    <p>請使用以下方式啟動伺服器並開啟編輯器：</p>
     <p><strong>Windows：</strong>雙擊 <code>start-editor.bat</code></p>
     <p><strong>macOS：</strong>雙擊 <code>start-editor.command</code></p>
   </div>
@@ -605,7 +605,7 @@ async function init() {
   showStatus("載入中...", "");
   // 先嘗試本機 API（由 editor_server.py 提供）
   try {
-    const res = await fetch("/api/content");
+    const res = await fetch("content.json");
     if (!res.ok) throw new Error("HTTP " + res.status);
     content = await res.json();
   } catch (_) {
